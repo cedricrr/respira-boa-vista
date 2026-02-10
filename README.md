@@ -34,10 +34,10 @@ npm run dev
 
 Se utilizar este dataset, cite:
 
-> SOBRENOME, Nome. **Expansão e democratização do monitoramento
+> WILLIAMS FILHO, Cedric Carol Patrician. **Expansão e democratização do monitoramento
 > de qualidade do ar em Boa Vista/RR**: dataset aberto e sistema
-> de visualização comunitária. Ano. Monografia (Especialização em
-> Computação Aplicada) — Instituição, Boa Vista, Ano.
+> de visualização comunitária. 2026. Monografia (Especialização em
+> Computação Aplicada) — UFRR - Universidade Federal de Roraima, Boa Vista, 2026.
 
 ## 📄 Licença
 
