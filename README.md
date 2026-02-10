@@ -12,9 +12,9 @@ para Boa Vista/RR**
 Dados coletados via sensores [PurpleAir](https://www.purpleair.com/)
 instalados em Boa Vista/RR, disponibilizados em formato aberto (CSV).
 
-- **Período:** [janeiro/2024] a [dezembro/2025]
+- **Período:** janeiro/2024 a dezembro/2025.
 - **Variáveis:** PM1.0, PM2.5, PM10, temperatura, umidade, AQI
-- **Frequência:** [30 minutos]
+- **Frequência:** 30 minutos.
 - **Licença dos dados:** CC BY 4.0
 
 📁 Acesse em [`/dataset`](./dataset/)
