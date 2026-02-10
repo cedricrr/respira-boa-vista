@@ -1,0 +1,81 @@
+{
+  "dataset_info": {
+    "title": "Dataset Aberto de Qualidade do Ar - Boa Vista/RR (2024-2025)",
+    "description": "Dados de monitoramento contínuo de material particulado (PM2.5 e PM10) coletados por sensor PurpleAir de baixo custo em Boa Vista, Roraima - 2 anos completos",
+    "version": "2.0",
+    "release_date": "2026-02-04",
+    "previous_version": "1.0 (2024-01-01 a 2025-01-11)",
+    "license": "CC BY 4.0",
+    "doi": "Pendente",
+    "citation": "Williams Filho, C.C.P.; Barros, C. (2026). Dataset Aberto de Qualidade do Ar - Boa Vista/RR (2024-2025). Universidade Federal de Roraima."
+  },
+  "sensor_info": {
+    "sensor_id": "56843",
+    "sensor_type": "PurpleAir PA-II-SD",
+    "sensor_model": "Plantower PMS5003",
+    "measurement_principle": "Laser scattering",
+    "calibration": "US EPA correction factor applied",
+    "installation_date": "2024-01-01",
+    "status": "Active",
+    "map_url": "https://map.purpleair.com/air-quality-standards-us-epa-aqi?opt=%2F1%2Flp%2Fa10%2Fp604800%2FcC0#18.19/2.828993/-60.662812"
+  },
+  "location": {
+    "name": "Boa Vista",
+    "city": "Boa Vista",
+    "state": "Roraima",
+    "country": "Brazil",
+    "coordinates": {
+      "latitude": 2.828993,
+      "longitude": -60.662812,
+      "elevation_m": 85
+    }
+  },
+  "temporal_coverage": {
+    "start": "2024-01-01T00:00:00+00:00",
+    "end": "2025-12-30T23:30:00+00:00",
+    "duration_days": 730,
+    "total_records": 34791,
+    "resolution": "30 minutes",
+    "timezone": "UTC",
+    "completeness": "99.29%"
+  },
+  "parameters": {
+    "pm2.5": {
+      "name": "PM2.5",
+      "unit": "µg/m³",
+      "mean": 9.32,
+      "median": 4.8,
+      "max": 373.2
+    },
+    "pm10": {
+      "name": "PM10",
+      "unit": "µg/m³",
+      "mean": 10.08,
+      "median": 5.2,
+      "max": 397.2
+    },
+    "temperature": {
+      "name": "Temperature",
+      "unit": "°C",
+      "mean": 34.1
+    },
+    "humidity": {
+      "name": "Relative Humidity",
+      "unit": "%",
+      "mean": 49.5
+    }
+  },
+  "statistics": {
+    "who_guideline_exceedance_pct": 48.0,
+    "pm25_reduction_2024_to_2025_pct": -63.1,
+    "years_covered": [
+      "2024",
+      "2025"
+    ]
+  },
+  "contact": {
+    "name": "Cedric Carol Patrician Williams Filho",
+    "email": "cedricstm@gmail.com",
+    "institution": "Universidade Federal de Roraima"
+  }
+}
