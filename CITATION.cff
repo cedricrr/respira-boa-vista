@@ -1,1 +1,17 @@
-
+cff-version: 1.2.0
+title: "Respira Boa Vista - Dataset de Qualidade do Ar"
+message: "Se você usar este dataset, por favor cite conforme abaixo."
+type: dataset
+authors:
+  - given-names: Cedric
+    family-names: "Williams"
+    affiliation: "UFRR - Universidade Federal de Roraima"
+keywords:
+  - qualidade do ar
+  - PurpleAir
+  - Boa Vista
+  - Roraima
+  - dados abertos
+  - IoT
+license: CC-BY-4.0
+date-released: "2026-02-10"
