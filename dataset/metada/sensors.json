@@ -1,1 +1,121 @@
-
+{
+  "project": {
+    "name": "Respira Boa Vista",
+    "description": "Dataset aberto de qualidade do ar e sistema de visualização comunitária para Boa Vista/RR",
+    "thesis_title": "Expansão e Democratização do Monitoramento de Qualidade do Ar em Boa Vista/RR - Dataset Aberto e Sistema de Visualização Comunitária",
+    "institution": "Universidade Federal de Roraima - UFRR",
+    "program": "Especialização em Computação Aplicada na Indústria 4.0"
+  },
+  "sensors": [
+    {
+      "sensor_index": 56843,
+      "name": "Sensor PurpleAir 56843 - Boa Vista/RR",
+      "model": "PurpleAir PA-II-SD",
+      "measurement_technology": {
+        "detector": "Plantower PMS5003",
+        "principle": "Laser scattering",
+        "channels": ["A", "B"],
+        "calibration": "US EPA correction factor applied"
+      },
+      "location": {
+        "city": "Boa Vista",
+        "state": "Roraima",
+        "state_code": "RR",
+        "country": "Brazil",
+        "country_code": "BR",
+        "coordinates": {
+          "latitude": 2.828993,
+          "longitude": -60.662812,
+          "datum": "WGS 84",
+          "elevation_m": 85
+        },
+        "timezone": "America/Boa_Vista",
+        "utc_offset": "-04:00",
+        "climate_zone": "Tropical savanna (Aw - Köppen)"
+      },
+      "purpleair_map_url": "https://map.purpleair.com/air-quality-standards-us-epa-aqi?opt=%2F1%2Flp%2Fa10%2Fp604800%2FcC0#18.19/2.828993/-60.662812",
+      "data_collection": {
+        "start_timestamp": "2024-01-01T00:00:00Z",
+        "end_timestamp": "2025-12-31T00:00:00Z",
+        "averaging_interval_minutes": 30,
+        "total_data_rows": 34791,
+        "total_api_requests": 9,
+        "download_date": "2026-02-04",
+        "download_duration_seconds": 34,
+        "read_keys_required": 0,
+        "is_public_sensor": true
+      },
+      "fields_collected": [
+        {
+          "field": "humidity",
+          "description": "Umidade relativa do ar (média dos canais A e B)",
+          "unit": "%"
+        },
+        {
+          "field": "humidity_a",
+          "description": "Umidade relativa - Canal A",
+          "unit": "%"
+        },
+        {
+          "field": "humidity_b",
+          "description": "Umidade relativa - Canal B",
+          "unit": "%"
+        },
+        {
+          "field": "temperature",
+          "description": "Temperatura do ar (convertida de °F para °C no processamento)",
+          "unit": "°F (raw) / °C (processed)"
+        },
+        {
+          "field": "pm2.5_cf_1",
+          "description": "Material particulado < 2.5µm - Fator de correção 1 (CF=1)",
+          "unit": "µg/m³"
+        },
+        {
+          "field": "pm10.0_cf_1",
+          "description": "Material particulado < 10µm - Fator de correção 1 (CF=1)",
+          "unit": "µg/m³"
+        },
+        {
+          "field": "pm2.5_atm",
+          "description": "Material particulado < 2.5µm - Correção atmosférica (ATM)",
+          "unit": "µg/m³"
+        },
+        {
+          "field": "pm10.0_atm",
+          "description": "Material particulado < 10µm - Correção atmosférica (ATM)",
+          "unit": "µg/m³"
+        }
+      ],
+      "data_summary": {
+        "note": "Estatísticas baseadas no período 2024-01-01 a 2025-01-11 (dados processados)",
+        "total_processed_rows": 17867,
+        "total_days_covered": 377,
+        "pm25_mean_ug_m3": 5.03,
+        "pm25_median_ug_m3": 2.22,
+        "pm25_max_ug_m3": 373.0,
+        "pm10_mean_ug_m3": 5.78,
+        "temperature_mean_celsius": 33.6,
+        "humidity_mean_percent": 51.5,
+        "who_guideline_exceedance_percent": 58.5,
+        "worst_month": "Março (média 49.27 µg/m³)",
+        "best_months": "Maio-Julho (média 2-4 µg/m³)",
+        "extreme_event": {
+          "date": "2024-03-24/25",
+          "pm25_max_ug_m3": 373.0,
+          "duration_hours": 12,
+          "aqi_category": "Hazardous (401-500)"
+        }
+      },
+      "status": "active"
+    }
+  ],
+  "metadata": {
+    "file_version": "1.0.0",
+    "created_at": "2026-02-10",
+    "last_updated": "2026-02-10",
+    "license": "CC-BY-4.0",
+    "contact": "Respira Boa Vista Project",
+    "source_log": "Progress_Logs.log (PurpleAir Data Download Tool)"
+  }
+}
