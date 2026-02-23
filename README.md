@@ -4,8 +4,8 @@
 para Boa Vista/RR**
 
 > Trabalho de Conclusão de Curso — Especialização em Computação Aplicada
-> *Expansão e Democratização do Monitoramento de Qualidade do Ar
-> em Boa Vista/RR: Dataset Aberto e Sistema de Visualização Comunitária*
+> *MONITORAMENTO DE QUALIDADE DO AR EM BOA VISTA/RR COM SENSORES IOT:
+>  DATASET ABERTO E VISUALIZAÇÃO COMUNITÁRIA*
 
 ## 📊 Dataset
 
