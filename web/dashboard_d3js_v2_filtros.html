@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Respira Boa Vista - Dashboard de Dados</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+        
+        /* Filtros */
+        .filters-section {
+            background: #f8f9fa;
+            padding: 25px 40px;
+            border-bottom: 3px solid #e2e8f0;
+        }
+        
+        .filters-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .filters-header h2 {
+            color: #2d3748;
+            font-size: 1.4em;
+        }
+        
+        .filters-header h2::before {
+            content: "🔍 ";
+        }
+        
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .filter-group label {
+            font-size: 0.9em;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+        
+        .filter-group select {
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1em;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-group select:hover {
+            border-color: #667eea;
+        }
+        
+        .filter-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .filter-actions {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+        
+        .btn-secondary:hover {
+            background: #f7fafc;
+        }
+        
+        .date-range-info {
+            background: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            color: #4a5568;
+        }
+        
+        .date-range-info::before {
+            content: "📅 ";
+        }
+        
+        /* Estatísticas */
+        .stats-container {
+            background: #f8f9fa;
+            padding: 30px;
+        }
+        
+        .stats-header {
+            color: #2d3748;
+            font-size: 1.6em;
+            margin-bottom: 20px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            border-left: 5px solid #667eea;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-card h3 {
+            color: #667eea;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+        
+        .stat-card .value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #2d3748;
+        }
+        
+        .stat-card .unit {
+            color: #718096;
+            font-size: 0.9em;
+            margin-top: 8px;
+        }
+        
+        /* Gráficos */
+        .charts-container {
+            padding: 30px;
+        }
+        
+        .chart-wrapper {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .chart-wrapper h2 {
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+        
+        .chart-wrapper h2::before {
+            content: "📊 ";
+        }
+        
+        svg { overflow: visible; }
+        
+        .line {
+            fill: none;
+            stroke-width: 2.5px;
+        }
+        
+        .line-pm25 { stroke: #e74c3c; }
+        .line-aqi { stroke: #3498db; }
+        
+        .axis {
+            font-size: 12px;
+        }
+        
+        .grid line {
+            stroke: #e0e0e0;
+            stroke-dasharray: 2,2;
+        }
+        
+        .grid path {
+            stroke-width: 0;
+        }
+        
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        
+        .tooltip.show {
+            opacity: 1;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #667eea;
+            font-size: 1.2em;
+        }
+        
+        footer {
+            background: #2d3748;
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .filters-grid {
+                grid-template-columns: 1fr;
+            }
+            .filter-actions {
+                width: 100%;
+                flex-direction: column;
+            }
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📈 Respira Boa Vista - Dashboard</h1>
+            <p>Análise de Dados de Qualidade do Ar</p>
+        </header>
+        
+        <div class="filters-section">
+            <div class="filters-header">
+                <h2>Filtrar Dados</h2>
+                <div class="date-range-info">
+                    Período: 01/01/2024 - 30/12/2025
+                </div>
+            </div>
+            
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label for="year">Ano</label>
+                    <select id="year">
+                        <option value="">Todos</option>
+                        <option value="2024">2024</option>
+                        <option value="2025">2025</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="month">Mês</label>
+                    <select id="month">
+                        <option value="">Todos</option>
+                        <option value="1">Janeiro</option>
+                        <option value="2">Fevereiro</option>
+                        <option value="3">Março</option>
+                        <option value="4">Abril</option>
+                        <option value="5">Maio</option>
+                        <option value="6">Junho</option>
+                        <option value="7">Julho</option>
+                        <option value="8">Agosto</option>
+                        <option value="9">Setembro</option>
+                        <option value="10">Outubro</option>
+                        <option value="11">Novembro</option>
+                        <option value="12">Dezembro</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="day">Dia</label>
+                    <select id="day">
+                        <option value="">Todos</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <div class="filter-actions">
+                        <button class="btn btn-primary" onclick="applyFilters()">
+                            ✓ Aplicar
+                        </button>
+                        <button class="btn btn-secondary" onclick="resetFilters()">
+                            ↺ Limpar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stats-container">
+            <h2 class="stats-header">📊 Estatísticas do Período Selecionado</h2>
+            <div id="stats" class="stats-grid">
+                <div class="loading">Carregando...</div>
+            </div>
+        </div>
+        
+        <div class="charts-container">
+            <div class="chart-wrapper">
+                <h2>Concentração de PM2.5</h2>
+                <div id="chart-pm25"></div>
+            </div>
+            
+            <div class="chart-wrapper">
+                <h2>Índice de Qualidade do Ar (IQA)</h2>
+                <div id="chart-aqi"></div>
+            </div>
+        </div>
+        
+        <footer>
+            <strong>Respira Boa Vista</strong>
+            <p>Cedric Williams | UFRR | TCC 2025</p>
+        </footer>
+    </div>
+    
+    <div class="tooltip" id="tooltip"></div>
+
+    <script>
+        let allData = [];
+        let filteredData = [];
+        
+        const margin = {top: 20, right: 30, bottom: 50, left: 60};
+        const width = 1100 - margin.left - margin.right;
+        const height = 400 - margin.top - margin.bottom;
+        
+        const tooltip = d3.select("#tooltip");
+        const formatDate = d3.timeFormat("%d/%m/%Y");
+        
+        // Gerar dados simulados
+        function generateData() {
+            const data = [];
+            const start = new Date('2024-01-01');
+            
+            for (let i = 0; i < 730; i++) {
+                const date = new Date(start);
+                date.setDate(date.getDate() + i);
+                
+                const month = date.getMonth() + 1;
+                let pm25 = month >= 2 && month <= 4 ? 20 + Math.random() * 30 :
+                           month >= 8 && month <= 10 ? 10 + Math.random() * 15 :
+                           2 + Math.random() * 8;
+                
+                data.push({
+                    date: date,
+                    pm25: pm25,
+                    aqi: calculateAQI(pm25),
+                    temp: 28 + Math.random() * 12,
+                    humidity: 35 + Math.random() * 40
+                });
+            }
+            return data;
+        }
+        
+        function calculateAQI(pm25) {
+            if (pm25 <= 12.0) return (50 / 12.0) * pm25;
+            if (pm25 <= 35.4) return 51 + ((100 - 51) / (35.4 - 12.1)) * (pm25 - 12.1);
+            if (pm25 <= 55.4) return 101 + ((150 - 101) / (55.4 - 35.5)) * (pm25 - 35.5);
+            return 151;
+        }
+        
+        // Preencher dias
+        function populateDays() {
+            const select = document.getElementById('day');
+            for (let i = 1; i <= 31; i++) {
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.textContent = i;
+                select.appendChild(opt);
+            }
+        }
+        
+        // Aplicar filtros
+        function applyFilters() {
+            const year = document.getElementById('year').value;
+            const month = document.getElementById('month').value;
+            const day = document.getElementById('day').value;
+            
+            filteredData = allData.filter(d => {
+                if (year && d.date.getFullYear() !== parseInt(year)) return false;
+                if (month && (d.date.getMonth() + 1) !== parseInt(month)) return false;
+                if (day && d.date.getDate() !== parseInt(day)) return false;
+                return true;
+            });
+            
+            updateDashboard();
+        }
+        
+        function resetFilters() {
+            document.getElementById('year').value = '';
+            document.getElementById('month').value = '';
+            document.getElementById('day').value = '';
+            filteredData = [...allData];
+            updateDashboard();
+        }
+        
+        // Atualizar dashboard
+        function updateDashboard() {
+            if (filteredData.length === 0) {
+                alert('Nenhum dado para os filtros selecionados');
+                return;
+            }
+            
+            renderStats();
+            renderCharts();
+        }
+        
+        function renderStats() {
+            const pm25Values = filteredData.map(d => d.pm25);
+            const aqiValues = filteredData.map(d => d.aqi);
+            
+            const html = `
+                <div class="stat-card">
+                    <h3>PM2.5 Médio</h3>
+                    <div class="value">${d3.mean(pm25Values).toFixed(2)}</div>
+                    <div class="unit">µg/m³</div>
+                </div>
+                <div class="stat-card">
+                    <h3>PM2.5 Máximo</h3>
+                    <div class="value">${d3.max(pm25Values).toFixed(1)}</div>
+                    <div class="unit">µg/m³</div>
+                </div>
+                <div class="stat-card">
+                    <h3>IQA Médio</h3>
+                    <div class="value">${d3.mean(aqiValues).toFixed(0)}</div>
+                    <div class="unit">índice</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Registros</h3>
+                    <div class="value">${filteredData.length}</div>
+                    <div class="unit">dias</div>
+                </div>
+            `;
+            
+            document.getElementById('stats').innerHTML = html;
+        }
+        
+        function renderCharts() {
+            d3.select("#chart-pm25").selectAll("*").remove();
+            d3.select("#chart-aqi").selectAll("*").remove();
+            
+            renderPM25Chart();
+            renderAQIChart();
+        }
+        
+        function renderPM25Chart() {
+            const svg = d3.select("#chart-pm25")
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+            
+            const x = d3.scaleTime()
+                .domain(d3.extent(filteredData, d => d.date))
+                .range([0, width]);
+            
+            const y = d3.scaleLinear()
+                .domain([0, d3.max(filteredData, d => d.pm25) * 1.1])
+                .range([height, 0]);
+            
+            svg.append("g")
+                .attr("class", "grid")
+                .call(d3.axisLeft(y).tickSize(-width).tickFormat(""));
+            
+            svg.append("g")
+                .attr("class", "axis")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x).ticks(10));
+            
+            svg.append("g")
+                .attr("class", "axis")
+                .call(d3.axisLeft(y));
+            
+            const line = d3.line()
+                .x(d => x(d.date))
+                .y(d => y(d.pm25))
+                .curve(d3.curveMonotoneX);
+            
+            svg.append("path")
+                .datum(filteredData)
+                .attr("class", "line line-pm25")
+                .attr("d", line);
+            
+            svg.append("line")
+                .attr("x1", 0)
+                .attr("x2", width)
+                .attr("y1", y(5))
+                .attr("y2", y(5))
+                .attr("stroke", "orange")
+                .attr("stroke-width", 2)
+                .attr("stroke-dasharray", "5,5");
+        }
+        
+        function renderAQIChart() {
+            const svg = d3.select("#chart-aqi")
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+            
+            const x = d3.scaleTime()
+                .domain(d3.extent(filteredData, d => d.date))
+                .range([0, width]);
+            
+            const y = d3.scaleLinear()
+                .domain([0, d3.max(filteredData, d => d.aqi) * 1.1])
+                .range([height, 0]);
+            
+            svg.append("g")
+                .attr("class", "grid")
+                .call(d3.axisLeft(y).tickSize(-width).tickFormat(""));
+            
+            svg.append("g")
+                .attr("class", "axis")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x).ticks(10));
+            
+            svg.append("g")
+                .attr("class", "axis")
+                .call(d3.axisLeft(y));
+            
+            const line = d3.line()
+                .x(d => x(d.date))
+                .y(d => y(d.aqi))
+                .curve(d3.curveMonotoneX);
+            
+            svg.append("path")
+                .datum(filteredData)
+                .attr("class", "line line-aqi")
+                .attr("d", line);
+        }
+        
+        // Inicializar
+        populateDays();
+        allData = generateData();
+        filteredData = [...allData];
+        updateDashboard();
+    </script>
+</body>
+</html>

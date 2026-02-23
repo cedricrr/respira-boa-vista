@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Qualidade do Ar - D3.js</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+        
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8f9fa;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border-left: 5px solid #667eea;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 12px rgba(0,0,0,0.15);
+        }
+        
+        .stat-card h3 {
+            color: #667eea;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .stat-card .value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #2d3748;
+            line-height: 1;
+        }
+        
+        .stat-card .unit {
+            color: #718096;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        
+        .charts-container {
+            padding: 30px;
+        }
+        
+        .chart-wrapper {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .chart-wrapper h2 {
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+        }
+        
+        .chart-wrapper h2::before {
+            content: "📊";
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        
+        svg {
+            overflow: visible;
+        }
+        
+        .line {
+            fill: none;
+            stroke-width: 2.5px;
+        }
+        
+        .line-pm25 {
+            stroke: #e74c3c;
+        }
+        
+        .line-aqi {
+            stroke: #3498db;
+        }
+        
+        .axis {
+            font-size: 12px;
+        }
+        
+        .axis-label {
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .grid line {
+            stroke: #e0e0e0;
+            stroke-dasharray: 2,2;
+        }
+        
+        .grid path {
+            stroke-width: 0;
+        }
+        
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .tooltip.show {
+            opacity: 1;
+        }
+        
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .legend-color {
+            width: 30px;
+            height: 4px;
+            border-radius: 2px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #667eea;
+            font-size: 1.2em;
+        }
+        
+        footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #718096;
+            font-size: 0.9em;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        footer strong {
+            color: #2d3748;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📈 Dashboard de Qualidade do Ar</h1>
+            <p>Boa Vista, Roraima - Sensor PurpleAir 56843 (2024-2025)</p>
+        </header>
+        
+        <div class="stats-container" id="stats">
+            <div class="loading">Carregando estatísticas...</div>
+        </div>
+        
+        <div class="charts-container">
+            <div class="chart-wrapper">
+                <h2>Concentração de PM2.5 ao Longo do Tempo</h2>
+                <div id="chart-pm25"></div>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #e74c3c;"></div>
+                        <span>PM2.5 (µg/m³)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: orange; height: 2px; border-style: dashed;"></div>
+                        <span>Diretriz OMS (5 µg/m³)</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chart-wrapper">
+                <h2>Índice de Qualidade do Ar (IQA)</h2>
+                <div id="chart-aqi"></div>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #3498db;"></div>
+                        <span>IQA (0-500)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p><strong>Dataset Aberto de Qualidade do Ar</strong></p>
+            <p>Desenvolvido por Cedric Williams | UFRR - Especialização em Computação Aplicada na Indústria 4.0</p>
+            <p>Dados: Janeiro 2024 - Dezembro 2025 | 730 dias de monitoramento contínuo</p>
+        </footer>
+    </div>
+    
+    <div class="tooltip" id="tooltip"></div>
+
+    <script>
+        // Configurações gerais
+        const margin = {top: 20, right: 30, bottom: 50, left: 60};
+        const width = 1100 - margin.left - margin.right;
+        const height = 400 - margin.top - margin.bottom;
+        
+        // Tooltip
+        const tooltip = d3.select("#tooltip");
+        
+        // Função para formatar datas
+        const formatDate = d3.timeFormat("%d/%m/%Y");
+        const parseDate = d3.timeParse("%Y-%m-%d");
+        
+        // Carregar dados
+        // NOTA: Em produção, substitua pelo caminho correto do arquivo JSON
+        // ou por uma chamada de API
+        const sampleData = generateSampleData();
+        
+        // Renderizar estatísticas
+        renderStats(sampleData);
+        
+        // Renderizar gráficos
+        renderPM25Chart(sampleData);
+        renderAQIChart(sampleData);
+        
+        // Funções
+        function generateSampleData() {
+            // Gera dados de exemplo para demonstração
+            // Em produção, você carregaria de data_d3js.json
+            const data = [];
+            const startDate = new Date('2024-01-01');
+            
+            for (let i = 0; i < 730; i++) {
+                const date = new Date(startDate);
+                date.setDate(date.getDate() + i);
+                
+                // Simula variação sazonal
+                const month = date.getMonth();
+                let basePM25 = 5;
+                
+                if (month >= 1 && month <= 3) {
+                    basePM25 = 20 + Math.random() * 30; // Fev-Abr: alta poluição
+                } else if (month >= 8 && month <= 10) {
+                    basePM25 = 10 + Math.random() * 15; // Set-Nov: média
+                } else {
+                    basePM25 = 2 + Math.random() * 5; // Outros: baixa
+                }
+                
+                const pm25 = basePM25;
+                const aqi = calculateAQI(pm25);
+                
+                data.push({
+                    timestamp_utc: date.toISOString().split('T')[0],
+                    pm25_ugm3: pm25,
+                    pm10_ugm3: pm25 * 1.1,
+                    temperature_celsius: 30 + Math.random() * 10,
+                    humidity_percent: 40 + Math.random() * 30,
+                    aqi: aqi
+                });
+            }
+            
+            return data;
+        }
+        
+        function calculateAQI(pm25) {
+            if (pm25 <= 12.0) return (50 / 12.0) * pm25;
+            if (pm25 <= 35.4) return 51 + ((100 - 51) / (35.4 - 12.1)) * (pm25 - 12.1);
+            if (pm25 <= 55.4) return 101 + ((150 - 101) / (55.4 - 35.5)) * (pm25 - 35.5);
+            if (pm25 <= 150.4) return 151 + ((200 - 151) / (150.4 - 55.5)) * (pm25 - 55.5);
+            if (pm25 <= 250.4) return 201 + ((300 - 201) / (250.4 - 150.5)) * (pm25 - 150.5);
+            return 301 + ((500 - 301) / (500.4 - 250.5)) * (pm25 - 250.5);
+        }
+        
+        function renderStats(data) {
+            const pm25Values = data.map(d => d.pm25_ugm3);
+            const aqiValues = data.map(d => d.aqi);
+            
+            const stats = [
+                {
+                    title: "PM2.5 Médio",
+                    value: d3.mean(pm25Values).toFixed(2),
+                    unit: "µg/m³"
+                },
+                {
+                    title: "PM2.5 Máximo",
+                    value: d3.max(pm25Values).toFixed(1),
+                    unit: "µg/m³"
+                },
+                {
+                    title: "IQA Médio",
+                    value: d3.mean(aqiValues).toFixed(0),
+                    unit: "índice"
+                },
+                {
+                    title: "Dias Monitorados",
+                    value: data.length,
+                    unit: "dias"
+                }
+            ];
+            
+            const statsHTML = stats.map(stat => `
+                <div class="stat-card">
+                    <h3>${stat.title}</h3>
+                    <div class="value">${stat.value}</div>
+                    <div class="unit">${stat.unit}</div>
+                </div>
+            `).join('');
+            
+            d3.select("#stats").html(statsHTML);
+        }
+        
+        function renderPM25Chart(data) {
+            const container = d3.select("#chart-pm25");
+            
+            // Parse dates
+            data.forEach(d => {
+                d.date = parseDate(d.timestamp_utc);
+            });
+            
+            // Criar SVG
+            const svg = container.append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+            
+            // Escalas
+            const x = d3.scaleTime()
+                .domain(d3.extent(data, d => d.date))
+                .range([0, width]);
+            
+            const y = d3.scaleLinear()
+                .domain([0, d3.max(data, d => d.pm25_ugm3) * 1.1])
+                .range([height, 0]);
+            
+            // Grid
+            svg.append("g")
+                .attr("class", "grid")
+                .call(d3.axisLeft(y)
+                    .tickSize(-width)
+                    .tickFormat("")
+                );
+            
+            // Eixos
+            svg.append("g")
+                .attr("class", "axis")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x)
+                    .ticks(12)
+                    .tickFormat(d3.timeFormat("%b/%y")));
+            
+            svg.append("g")
+                .attr("class", "axis")
+                .call(d3.axisLeft(y));
+            
+            // Labels
+            svg.append("text")
+                .attr("class", "axis-label")
+                .attr("text-anchor", "middle")
+                .attr("x", width / 2)
+                .attr("y", height + 40)
+                .text("Período");
+            
+            svg.append("text")
+                .attr("class", "axis-label")
+                .attr("text-anchor", "middle")
+                .attr("transform", "rotate(-90)")
+                .attr("y", -45)
+                .attr("x", -height / 2)
+                .text("PM2.5 (µg/m³)");
+            
+            // Linha
+            const line = d3.line()
+                .x(d => x(d.date))
+                .y(d => y(d.pm25_ugm3))
+                .curve(d3.curveMonotoneX);
+            
+            svg.append("path")
+                .datum(data)
+                .attr("class", "line line-pm25")
+                .attr("d", line);
+            
+            // Linha de referência OMS
+            svg.append("line")
+                .attr("x1", 0)
+                .attr("x2", width)
+                .attr("y1", y(5))
+                .attr("y2", y(5))
+                .attr("stroke", "orange")
+                .attr("stroke-width", 2)
+                .attr("stroke-dasharray", "5,5");
+            
+            // Interatividade
+            const focus = svg.append("g")
+                .style("display", "none");
+            
+            focus.append("circle")
+                .attr("r", 5)
+                .attr("fill", "#e74c3c");
+            
+            svg.append("rect")
+                .attr("width", width)
+                .attr("height", height)
+                .style("fill", "none")
+                .style("pointer-events", "all")
+                .on("mouseover", () => focus.style("display", null))
+                .on("mouseout", () => {
+                    focus.style("display", "none");
+                    tooltip.classed("show", false);
+                })
+                .on("mousemove", mousemove);
+            
+            function mousemove(event) {
+                const bisect = d3.bisector(d => d.date).left;
+                const x0 = x.invert(d3.pointer(event, this)[0]);
+                const i = bisect(data, x0, 1);
+                const d = data[i];
+                
+                if (d) {
+                    focus.attr("transform", `translate(${x(d.date)},${y(d.pm25_ugm3)})`);
+                    
+                    tooltip.classed("show", true)
+                        .html(`
+                            <strong>${formatDate(d.date)}</strong><br>
+                            PM2.5: <strong>${d.pm25_ugm3.toFixed(2)} µg/m³</strong><br>
+                            IQA: <strong>${d.aqi.toFixed(0)}</strong>
+                        `)
+                        .style("left", (event.pageX + 15) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                }
+            }
+        }
+        
+        function renderAQIChart(data) {
+            const container = d3.select("#chart-aqi");
+            
+            // Criar SVG
+            const svg = container.append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+            
+            // Escalas
+            const x = d3.scaleTime()
+                .domain(d3.extent(data, d => d.date))
+                .range([0, width]);
+            
+            const y = d3.scaleLinear()
+                .domain([0, d3.max(data, d => d.aqi) * 1.1])
+                .range([height, 0]);
+            
+            // Grid
+            svg.append("g")
+                .attr("class", "grid")
+                .call(d3.axisLeft(y)
+                    .tickSize(-width)
+                    .tickFormat("")
+                );
+            
+            // Eixos
+            svg.append("g")
+                .attr("class", "axis")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x)
+                    .ticks(12)
+                    .tickFormat(d3.timeFormat("%b/%y")));
+            
+            svg.append("g")
+                .attr("class", "axis")
+                .call(d3.axisLeft(y));
+            
+            // Labels
+            svg.append("text")
+                .attr("class", "axis-label")
+                .attr("text-anchor", "middle")
+                .attr("x", width / 2)
+                .attr("y", height + 40)
+                .text("Período");
+            
+            svg.append("text")
+                .attr("class", "axis-label")
+                .attr("text-anchor", "middle")
+                .attr("transform", "rotate(-90)")
+                .attr("y", -45)
+                .attr("x", -height / 2)
+                .text("IQA (0-500)");
+            
+            // Área preenchida
+            const area = d3.area()
+                .x(d => x(d.date))
+                .y0(height)
+                .y1(d => y(d.aqi))
+                .curve(d3.curveMonotoneX);
+            
+            svg.append("path")
+                .datum(data)
+                .attr("fill", "rgba(52, 152, 219, 0.3)")
+                .attr("d", area);
+            
+            // Linha
+            const line = d3.line()
+                .x(d => x(d.date))
+                .y(d => y(d.aqi))
+                .curve(d3.curveMonotoneX);
+            
+            svg.append("path")
+                .datum(data)
+                .attr("class", "line line-aqi")
+                .attr("d", line);
+            
+            // Linhas de referência IQA
+            const aqiLevels = [
+                {value: 50, label: "Boa", color: "#00e400"},
+                {value: 100, label: "Moderada", color: "#ffff00"},
+                {value: 150, label: "Prejudicial", color: "#ff7e00"}
+            ];
+            
+            aqiLevels.forEach(level => {
+                svg.append("line")
+                    .attr("x1", 0)
+                    .attr("x2", width)
+                    .attr("y1", y(level.value))
+                    .attr("y2", y(level.value))
+                    .attr("stroke", level.color)
+                    .attr("stroke-width", 1)
+                    .attr("stroke-dasharray", "3,3")
+                    .attr("opacity", 0.5);
+            });
+        }
+        
+        console.log("Dashboard D3.js inicializado!");
+        console.log("NOTA: Para usar dados reais, carregue o arquivo data_d3js.json");
+        console.log("Exemplo: d3.json('data_d3js.json').then(data => { ... });");
+    </script>
+</body>
+</html>
