@@ -4,8 +4,8 @@
 para Boa Vista/RR**
 
 > Trabalho de Conclusão de Curso — Especialização em Computação Aplicada
-> *MONITORAMENTO DE QUALIDADE DO AR EM BOA VISTA/RR COM SENSORES IOT:
->  DATASET ABERTO E VISUALIZAÇÃO COMUNITÁRIA*
+> *Monitormento de Qualidade do ar em Boa Vista/RR com sensores IoT:
+>  Dataset aberto e visualização comunitária.*
 
 ## 📊 Dataset
 
@@ -21,22 +21,15 @@ instalados em Boa Vista/RR, disponibilizados em formato aberto (CSV).
 
 ## 🖥️ Visualização Web
 
-Aplicação React para consulta interativa dos dados com mapas e gráficos.
-
-### Executar localmente
-```bash
-cd web
-npm install
-npm run dev
-```
+Aplicação HTML para consulta interativa dos dados com mapas e gráficos.
 
 ## 📖 Citação
 
 Se utilizar este dataset, cite:
 
-> WILLIAMS FILHO, Cedric Carol Patrician. **Expansão e democratização do monitoramento
-> de qualidade do ar em Boa Vista/RR**: dataset aberto e sistema
-> de visualização comunitária. 2026. Monografia (Especialização em
+> WILLIAMS FILHO, Cedric Carol Patrician. **> *Monitormento de Qualidade do ar em Boa Vista/RR com sensores IoT:
+> Dataset aberto e visualização comunitária.**: 
+> . 2026. Monografia (Especialização em
 > Computação Aplicada) — UFRR - Universidade Federal de Roraima, Boa Vista, 2026.
 
 ## 📄 Licença
