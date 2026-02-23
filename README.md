@@ -27,7 +27,7 @@ Aplicação HTML para consulta interativa dos dados com mapas e gráficos.
 
 Se utilizar este dataset, cite:
 
-> WILLIAMS FILHO, Cedric Carol Patrician. **> *Monitormento de Qualidade do ar em Boa Vista/RR com sensores IoT:
+> WILLIAMS FILHO, Cedric Carol Patrician. **> Monitormento de Qualidade do ar em Boa Vista/RR com sensores IoT:
 > Dataset aberto e visualização comunitária.**: 
 > . 2026. Monografia (Especialização em
 > Computação Aplicada) — UFRR - Universidade Federal de Roraima, Boa Vista, 2026.
