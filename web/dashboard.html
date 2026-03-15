@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Respira Boa Vista</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        :root {
+            --aqi-boa: #00e400;
+            --aqi-moderada: #ffff00;
+            --aqi-sensivel: #ff7e00;
+            --aqi-prejudicial: #ff0000;
+            --aqi-muito-prejudicial: #8f3f97;
+            --primary: #667eea;
+            --text-dark: #2d3748;
+            --bg-body: #f4f7f6;
+            --card-bg: #ffffff;
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-dark); overflow-x: hidden; }
+
+        /* NavBar */
+        .navbar {
+            position: sticky; top: 0;
+            background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);
+            padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 1000;
+        }
+        .nav-logo { font-weight: 700; font-size: 1.4rem; color: var(--primary); display: flex; align-items: center; gap: 10px; text-decoration: none; }
+        .nav-links { display: flex; gap: 2rem; list-style: none; }
+        .nav-links a { text-decoration: none; color: var(--text-dark); font-weight: 600; transition: var(--transition); display: flex; align-items: center; gap: 5px; }
+        .nav-links a.active { color: var(--primary); }
+        .menu-toggle { display: none; font-size: 1.8rem; cursor: pointer; }
+
+        /* Content */
+        .dashboard-content { padding: 2rem 5%; max-width: 1400px; margin: 0 auto; }
+
+        /* Filters */
+        .filters-bar {
+            background: white; padding: 1.5rem; border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04); margin-bottom: 2rem;
+            display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-end;
+        }
+        .filter-group { flex: 1; min-width: 150px; }
+        .filter-group label { display: block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: #888; margin-bottom: 0.3rem; letter-spacing: 0.5px; }
+        .filter-group select {
+            width: 100%; padding: 0.7rem; border: 2px solid #edf2f7; border-radius: 10px;
+            font-family: inherit; font-size: 0.9rem; cursor: pointer; transition: var(--transition);
+        }
+        .filter-group select:focus { border-color: var(--primary); outline: none; }
+        .filter-btn-group { display: flex; gap: 0.5rem; }
+        .btn-apply {
+            background: var(--primary); color: white; border: none; padding: 0.7rem 1.5rem;
+            border-radius: 10px; font-weight: 600; cursor: pointer; transition: var(--transition);
+            font-size: 0.9rem; display: flex; align-items: center; gap: 6px;
+        }
+        .btn-apply:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102,126,234,0.3); }
+        .btn-reset {
+            background: white; color: var(--primary); border: 2px solid var(--primary);
+            padding: 0.7rem 1rem; border-radius: 10px; font-weight: 600; cursor: pointer;
+            transition: var(--transition); font-size: 0.9rem;
+        }
+        .period-label {
+            background: var(--bg-body); padding: 0.7rem 1rem; border-radius: 10px;
+            font-size: 0.85rem; color: #666; display: flex; align-items: center; gap: 6px;
+        }
+
+        /* Stats */
+        .stats-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem; margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: white; padding: 1.3rem; border-radius: 14px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.03); border-left: 4px solid var(--primary);
+            transition: var(--transition);
+        }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 16px rgba(0,0,0,0.06); }
+        .stat-card .label { font-size: 0.7rem; text-transform: uppercase; color: #888; font-weight: 700; letter-spacing: 0.5px; }
+        .stat-card .value { font-size: 1.8rem; font-weight: 700; margin: 0.3rem 0 0.1rem; }
+        .stat-card .sub { font-size: 0.75rem; color: #aaa; }
+
+        /* Charts */
+        .chart-card {
+            background: white; padding: 1.5rem; border-radius: 16px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.04); margin-bottom: 2rem;
+            overflow-x: auto;
+        }
+        .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem; }
+        .chart-header h3 { font-size: 1.1rem; display: flex; align-items: center; gap: 8px; }
+        .chart-legend { display: flex; gap: 1rem; font-size: 0.8rem; }
+        .chart-legend span { display: flex; align-items: center; gap: 5px; }
+        .legend-dot { width: 10px; height: 10px; border-radius: 3px; }
+
+        /* D3 styles */
+        .axis-label { font-size: 11px; fill: #718096; font-family: 'Inter', sans-serif; }
+        .grid line { stroke: #edf2f7; stroke-opacity: 0.8; shape-rendering: crispEdges; }
+        .grid path { stroke-width: 0; }
+
+        /* Tooltip */
+        .d3-tooltip {
+            position: absolute; background: rgba(45,55,72,0.95); color: white;
+            padding: 10px 14px; border-radius: 10px; font-size: 0.8rem;
+            pointer-events: none; opacity: 0; transition: opacity 0.15s;
+            font-family: 'Inter', sans-serif; line-height: 1.5;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .fade-in { opacity: 0; transform: translateY(20px); animation: fadeInUp 0.6s forwards; }
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+        .stagger-1 { animation-delay: 0.1s; }
+        .stagger-2 { animation-delay: 0.2s; }
+        .stagger-3 { animation-delay: 0.3s; }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                position: fixed; right: -100%; top: 0; height: 100vh; width: 250px;
+                background: white; flex-direction: column; padding: 5rem 2rem;
+                transition: 0.4s ease; box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+            }
+            .nav-links.active { right: 0; }
+            .menu-toggle { display: block; }
+            .filters-bar { flex-direction: column; }
+            .filter-group { min-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="nav-logo"><i class="ph-fill ph-wind"></i> Respira BV</a>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="index.html"><i class="ph ph-house"></i> Início</a></li>
+            <li><a href="mapa.html"><i class="ph ph-map-trifold"></i> Mapa</a></li>
+            <li><a href="dashboard.html" class="active"><i class="ph ph-chart-line-up"></i> Dashboard</a></li>
+        </ul>
+        <div class="menu-toggle" onclick="toggleMenu()"><i class="ph ph-list"></i></div>
+    </nav>
+
+    <main class="dashboard-content">
+        <header class="fade-in stagger-1" style="margin-bottom: 1.5rem;">
+            <h1 style="font-size: 1.8rem;"><i class="ph ph-presentation-chart"></i> Análise Histórica</h1>
+            <p style="color: #666; font-size: 0.95rem;">Dados reais do sensor PurpleAir 56843 — Boa Vista/RR (2024–2025)</p>
+        </header>
+
+        <div class="filters-bar fade-in stagger-1">
+            <div class="filter-group">
+                <label>Ano</label>
+                <select id="filter-year">
+                    <option value="">Todos</option>
+                    <option value="2024">2024</option>
+                    <option value="2025">2025</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Mês</label>
+                <select id="filter-month">
+                    <option value="">Todos</option>
+                    <option value="1">Janeiro</option><option value="2">Fevereiro</option>
+                    <option value="3">Março</option><option value="4">Abril</option>
+                    <option value="5">Maio</option><option value="6">Junho</option>
+                    <option value="7">Julho</option><option value="8">Agosto</option>
+                    <option value="9">Setembro</option><option value="10">Outubro</option>
+                    <option value="11">Novembro</option><option value="12">Dezembro</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Dia</label>
+                <select id="filter-day"><option value="">Todos</option></select>
+            </div>
+            <div class="filter-btn-group">
+                <button class="btn-apply" onclick="applyFilters()"><i class="ph ph-check-circle"></i> Aplicar</button>
+                <button class="btn-reset" onclick="resetFilters()"><i class="ph ph-arrow-counter-clockwise"></i></button>
+            </div>
+            <div class="period-label" id="periodLabel"><i class="ph ph-calendar"></i> Carregando dados...</div>
+        </div>
+
+        <div class="stats-grid fade-in stagger-2" id="statsGrid"></div>
+
+        <div class="chart-card fade-in stagger-2">
+            <div class="chart-header">
+                <h3><i class="ph ph-chart-line"></i> Concentração de PM2.5</h3>
+                <div class="chart-legend">
+                    <span><div class="legend-dot" style="background: var(--primary)"></div> PM2.5 diário</span>
+                    <span><div class="legend-dot" style="background: #ff7e00"></div> Limite OMS (15 µg/m³)</span>
+                </div>
+            </div>
+            <div id="chart-pm25"></div>
+        </div>
+
+        <div class="chart-card fade-in stagger-3">
+            <div class="chart-header">
+                <h3><i class="ph ph-gauge"></i> Índice de Qualidade do Ar (IQA)</h3>
+                <div class="chart-legend">
+                    <span><div class="legend-dot" style="background: #3498db"></div> IQA diário</span>
+                    <span><div class="legend-dot" style="background: var(--aqi-boa)"></div> Limite Bom (50)</span>
+                </div>
+            </div>
+            <div id="chart-aqi"></div>
+        </div>
+
+        <div class="chart-card fade-in stagger-3">
+            <div class="chart-header">
+                <h3><i class="ph ph-thermometer-simple"></i> Temperatura e Umidade</h3>
+                <div class="chart-legend">
+                    <span><div class="legend-dot" style="background: #e74c3c"></div> Temperatura (°C)</span>
+                    <span><div class="legend-dot" style="background: #3498db"></div> Umidade (%)</span>
+                </div>
+            </div>
+            <div id="chart-temp"></div>
+        </div>
+    </main>
+
+    <div class="d3-tooltip" id="tooltip"></div>
+
+    <script>
+        function toggleMenu() { document.getElementById('navLinks').classList.toggle('active'); }
+
+        // Populate days
+        const daySelect = document.getElementById('filter-day');
+        for (let i = 1; i <= 31; i++) {
+            const opt = document.createElement('option');
+            opt.value = i; opt.textContent = i;
+            daySelect.appendChild(opt);
+        }
+
+        function calculateAQI(pm25) {
+            if (pm25 <= 12.0) return Math.round((50 / 12.0) * pm25);
+            if (pm25 <= 35.4) return Math.round(51 + ((100 - 51) / (35.4 - 12.1)) * (pm25 - 12.1));
+            if (pm25 <= 55.4) return Math.round(101 + ((150 - 101) / (55.4 - 35.5)) * (pm25 - 35.5));
+            if (pm25 <= 150.4) return Math.round(151 + ((200 - 151) / (150.4 - 55.5)) * (pm25 - 55.5));
+            if (pm25 <= 250.4) return Math.round(201 + ((300 - 201) / (250.4 - 150.5)) * (pm25 - 150.5));
+            return Math.round(301 + ((500 - 301) / (500.4 - 250.5)) * (pm25 - 250.5));
+        }
+
+        let allData = [];
+        let filteredData = [];
+
+        async function loadData() {
+            try {
+                const raw = await d3.csv('../dataset/processed/dataset_qualidade_ar_boavista_2024-2025_complete.csv', d => ({
+                    date: d.date,
+                    pm25: +d.pm25_ugm3,
+                    pm10: +d.pm10_ugm3,
+                    temp: +d.temperature_celsius,
+                    hum: +d.humidity_percent,
+                    aqi: +d.aqi,
+                    month: +d.month,
+                    year: +d.year
+                }));
+
+                const grouped = d3.group(raw, d => d.date);
+                allData = Array.from(grouped, ([date, records]) => ({
+                    d: date,
+                    p: d3.mean(records, r => r.pm25),
+                    px: d3.max(records, r => r.pm25),
+                    t: d3.mean(records, r => r.pm10),
+                    c: d3.mean(records, r => r.temp),
+                    h: d3.mean(records, r => r.hum)
+                })).sort((a, b) => a.d.localeCompare(b.d));
+
+                filteredData = [...allData];
+                document.getElementById('periodLabel').innerHTML = `<i class="ph ph-calendar"></i> Período completo — ${allData.length} dias`;
+                renderAllCharts();
+            } catch(e) {
+                console.error('Erro ao carregar dados:', e);
+                document.getElementById('periodLabel').innerHTML = '<i class="ph ph-calendar"></i> Erro ao carregar dados — verifique o servidor HTTP';
+            }
+        }
+
+        const tooltip = d3.select("#tooltip");
+        const formatDate = d3.timeFormat("%d/%m/%Y");
+
+        function mean(arr) { return arr.reduce((a,b) => a+b, 0) / arr.length; }
+
+        function renderStats() {
+            const pm25 = filteredData.map(d => d.p);
+            const pm25Max = filteredData.map(d => d.px);
+            const aqis = pm25.map(v => calculateAQI(v));
+            const temps = filteredData.map(d => d.c);
+            const hums = filteredData.map(d => d.h);
+
+            const cards = [
+                { label: 'PM2.5 Médio', value: mean(pm25).toFixed(1), sub: 'µg/m³', color: mean(pm25) > 15 ? '#ff7e00' : 'var(--aqi-boa)' },
+                { label: 'PM2.5 Máximo', value: Math.max(...pm25Max).toFixed(1), sub: 'µg/m³ (pico 30-min)', color: 'var(--aqi-prejudicial)' },
+                { label: 'IQA Médio', value: Math.round(mean(aqis)), sub: 'índice', color: 'var(--primary)' },
+                { label: 'Dias > OMS', value: pm25.filter(v => v > 15).length, sub: `de ${filteredData.length}`, color: '#ff7e00' },
+                { label: 'Temperatura', value: mean(temps).toFixed(1) + '°C', sub: 'média diária', color: '#e74c3c' },
+                { label: 'Umidade', value: mean(hums).toFixed(0) + '%', sub: 'média diária', color: '#3498db' },
+            ];
+
+            document.getElementById('statsGrid').innerHTML = cards.map(c => `
+                <div class="stat-card">
+                    <div class="label">${c.label}</div>
+                    <div class="value" style="color: ${c.color}">${c.value}</div>
+                    <div class="sub">${c.sub}</div>
+                </div>
+            `).join('');
+        }
+
+        function getChartWidth() {
+            const container = document.querySelector('.chart-card');
+            return container ? container.offsetWidth - 80 : 900;
+        }
+
+        function renderPM25Chart() {
+            d3.select("#chart-pm25").selectAll("*").remove();
+            const margin = {top: 20, right: 30, bottom: 50, left: 55};
+            const width = getChartWidth() - margin.left - margin.right;
+            const height = 350 - margin.top - margin.bottom;
+
+            const chartData = filteredData.map(d => ({ date: new Date(d.d), value: d.p }));
+
+            const svg = d3.select("#chart-pm25").append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+            const x = d3.scaleTime().domain(d3.extent(chartData, d => d.date)).range([0, width]);
+            const y = d3.scaleLinear().domain([0, d3.max(chartData, d => d.value) * 1.1]).range([height, 0]);
+
+            svg.append("g").attr("class", "grid")
+                .call(d3.axisLeft(y).tickSize(-width).tickFormat(""));
+
+            svg.append("g").attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x).ticks(Math.min(chartData.length, 12)))
+                .selectAll("text").attr("class", "axis-label");
+
+            svg.append("g").call(d3.axisLeft(y))
+                .selectAll("text").attr("class", "axis-label");
+
+            // WHO limit line
+            svg.append("line")
+                .attr("x1", 0).attr("x2", width)
+                .attr("y1", y(15)).attr("y2", y(15))
+                .attr("stroke", "#ff7e00").attr("stroke-width", 2)
+                .attr("stroke-dasharray", "6,4").attr("opacity", 0.8);
+
+            const line = d3.line().x(d => x(d.date)).y(d => y(d.value)).curve(d3.curveMonotoneX);
+
+            svg.append("path").datum(chartData)
+                .attr("fill", "none").attr("stroke", "var(--primary)")
+                .attr("stroke-width", 2.5).attr("stroke-linecap", "round")
+                .attr("d", line);
+
+            // Hover overlay
+            const bisect = d3.bisector(d => d.date).left;
+            const focus = svg.append("circle").attr("r", 5).attr("fill", "var(--primary)").attr("stroke", "white").attr("stroke-width", 2).style("display", "none");
+
+            svg.append("rect").attr("width", width).attr("height", height).attr("fill", "none").attr("pointer-events", "all")
+                .on("mousemove", function(event) {
+                    const x0 = x.invert(d3.pointer(event)[0]);
+                    const i = bisect(chartData, x0, 1);
+                    const d = i < chartData.length ? chartData[i] : chartData[chartData.length-1];
+                    focus.style("display", null).attr("cx", x(d.date)).attr("cy", y(d.value));
+                    tooltip.style("opacity", 1).html(`<strong>${formatDate(d.date)}</strong><br>PM2.5: ${d.value.toFixed(1)} µg/m³`)
+                        .style("left", (event.pageX + 15) + "px").style("top", (event.pageY - 40) + "px");
+                })
+                .on("mouseleave", function() { focus.style("display", "none"); tooltip.style("opacity", 0); });
+        }
+
+        function renderAQIChart() {
+            d3.select("#chart-aqi").selectAll("*").remove();
+            const margin = {top: 20, right: 30, bottom: 50, left: 55};
+            const width = getChartWidth() - margin.left - margin.right;
+            const height = 350 - margin.top - margin.bottom;
+
+            const chartData = filteredData.map(d => ({ date: new Date(d.d), value: calculateAQI(d.p) }));
+
+            const svg = d3.select("#chart-aqi").append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+            const x = d3.scaleTime().domain(d3.extent(chartData, d => d.date)).range([0, width]);
+            const y = d3.scaleLinear().domain([0, d3.max(chartData, d => d.value) * 1.1]).range([height, 0]);
+
+            svg.append("g").attr("class", "grid")
+                .call(d3.axisLeft(y).tickSize(-width).tickFormat(""));
+
+            svg.append("g").attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x).ticks(Math.min(chartData.length, 12)))
+                .selectAll("text").attr("class", "axis-label");
+
+            svg.append("g").call(d3.axisLeft(y))
+                .selectAll("text").attr("class", "axis-label");
+
+            // Good AQI limit
+            svg.append("line")
+                .attr("x1", 0).attr("x2", width)
+                .attr("y1", y(50)).attr("y2", y(50))
+                .attr("stroke", "var(--aqi-boa)").attr("stroke-width", 2)
+                .attr("stroke-dasharray", "6,4").attr("opacity", 0.7);
+
+            const line = d3.line().x(d => x(d.date)).y(d => y(d.value)).curve(d3.curveMonotoneX);
+
+            svg.append("path").datum(chartData)
+                .attr("fill", "none").attr("stroke", "#3498db")
+                .attr("stroke-width", 2.5).attr("stroke-linecap", "round")
+                .attr("d", line);
+
+            const bisect = d3.bisector(d => d.date).left;
+            const focus = svg.append("circle").attr("r", 5).attr("fill", "#3498db").attr("stroke", "white").attr("stroke-width", 2).style("display", "none");
+
+            svg.append("rect").attr("width", width).attr("height", height).attr("fill", "none").attr("pointer-events", "all")
+                .on("mousemove", function(event) {
+                    const x0 = x.invert(d3.pointer(event)[0]);
+                    const i = bisect(chartData, x0, 1);
+                    const d = i < chartData.length ? chartData[i] : chartData[chartData.length-1];
+                    focus.style("display", null).attr("cx", x(d.date)).attr("cy", y(d.value));
+                    tooltip.style("opacity", 1).html(`<strong>${formatDate(d.date)}</strong><br>IQA: ${d.value}`)
+                        .style("left", (event.pageX + 15) + "px").style("top", (event.pageY - 40) + "px");
+                })
+                .on("mouseleave", function() { focus.style("display", "none"); tooltip.style("opacity", 0); });
+        }
+
+        function renderTempChart() {
+            d3.select("#chart-temp").selectAll("*").remove();
+            const margin = {top: 20, right: 55, bottom: 50, left: 55};
+            const width = getChartWidth() - margin.left - margin.right;
+            const height = 350 - margin.top - margin.bottom;
+
+            const chartData = filteredData.map(d => ({ date: new Date(d.d), temp: d.c, hum: d.h }));
+
+            const svg = d3.select("#chart-temp").append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+            const x = d3.scaleTime().domain(d3.extent(chartData, d => d.date)).range([0, width]);
+            const yTemp = d3.scaleLinear().domain([d3.min(chartData, d => d.temp) - 2, d3.max(chartData, d => d.temp) + 2]).range([height, 0]);
+            const yHum = d3.scaleLinear().domain([0, 100]).range([height, 0]);
+
+            svg.append("g").attr("class", "grid")
+                .call(d3.axisLeft(yTemp).tickSize(-width).tickFormat(""));
+
+            svg.append("g").attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x).ticks(Math.min(chartData.length, 12)))
+                .selectAll("text").attr("class", "axis-label");
+
+            svg.append("g").call(d3.axisLeft(yTemp).tickFormat(d => d + "°C"))
+                .selectAll("text").attr("class", "axis-label");
+
+            svg.append("g").attr("transform", `translate(${width},0)`)
+                .call(d3.axisRight(yHum).tickFormat(d => d + "%"))
+                .selectAll("text").attr("class", "axis-label");
+
+            const lineTemp = d3.line().x(d => x(d.date)).y(d => yTemp(d.temp)).curve(d3.curveMonotoneX);
+            const lineHum = d3.line().x(d => x(d.date)).y(d => yHum(d.hum)).curve(d3.curveMonotoneX);
+
+            svg.append("path").datum(chartData)
+                .attr("fill", "none").attr("stroke", "#e74c3c")
+                .attr("stroke-width", 2).attr("stroke-linecap", "round")
+                .attr("d", lineTemp).attr("opacity", 0.85);
+
+            svg.append("path").datum(chartData)
+                .attr("fill", "none").attr("stroke", "#3498db")
+                .attr("stroke-width", 2).attr("stroke-linecap", "round")
+                .attr("d", lineHum).attr("opacity", 0.85);
+
+            const bisect = d3.bisector(d => d.date).left;
+
+            svg.append("rect").attr("width", width).attr("height", height).attr("fill", "none").attr("pointer-events", "all")
+                .on("mousemove", function(event) {
+                    const x0 = x.invert(d3.pointer(event)[0]);
+                    const i = bisect(chartData, x0, 1);
+                    const d = i < chartData.length ? chartData[i] : chartData[chartData.length-1];
+                    tooltip.style("opacity", 1)
+                        .html(`<strong>${formatDate(d.date)}</strong><br>Temp: ${d.temp.toFixed(1)}°C<br>Umidade: ${d.hum.toFixed(0)}%`)
+                        .style("left", (event.pageX + 15) + "px").style("top", (event.pageY - 40) + "px");
+                })
+                .on("mouseleave", function() { tooltip.style("opacity", 0); });
+        }
+
+        function renderAllCharts() {
+            renderStats();
+            renderPM25Chart();
+            renderAQIChart();
+            renderTempChart();
+        }
+
+        function applyFilters() {
+            const year = document.getElementById('filter-year').value;
+            const month = document.getElementById('filter-month').value;
+            const day = document.getElementById('filter-day').value;
+
+            filteredData = allData.filter(item => {
+                const d = new Date(item.d);
+                if (year && d.getFullYear() !== parseInt(year)) return false;
+                if (month && (d.getMonth() + 1) !== parseInt(month)) return false;
+                if (day && d.getDate() !== parseInt(day)) return false;
+                return true;
+            });
+
+            if (filteredData.length === 0) {
+                alert('Nenhum dado encontrado para os filtros selecionados.');
+                return;
+            }
+
+            const months = ['','Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+            let info = '';
+            if (day && month && year) info = `${day} de ${months[parseInt(month)]} de ${year}`;
+            else if (month && year) info = `${months[parseInt(month)]} de ${year}`;
+            else if (year) info = `Ano ${year}`;
+            else if (month) info = `${months[parseInt(month)]} (todos os anos)`;
+            else info = 'Período completo';
+
+            document.getElementById('periodLabel').innerHTML = `<i class="ph ph-calendar"></i> ${info} — ${filteredData.length} dias`;
+            renderAllCharts();
+        }
+
+        function resetFilters() {
+            document.getElementById('filter-year').value = '';
+            document.getElementById('filter-month').value = '';
+            document.getElementById('filter-day').value = '';
+            filteredData = [...allData];
+            document.getElementById('periodLabel').innerHTML = `<i class="ph ph-calendar"></i> Período completo — ${allData.length} dias`;
+            renderAllCharts();
+        }
+
+        // Init
+        loadData();
+
+        // Responsive resize
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(renderAllCharts, 250);
+        });
+    </script>
+</body>
+</html>

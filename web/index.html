@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Respira Boa Vista - Portal de Qualidade do Ar</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        :root {
+            --aqi-boa: #00e400;
+            --aqi-moderada: #ffff00;
+            --aqi-sensivel: #ff7e00;
+            --aqi-prejudicial: #ff0000;
+            --aqi-muito-prejudicial: #8f3f97;
+            --aqi-perigosa: #7e0023;
+            --primary: #667eea;
+            --primary-dark: #764ba2;
+            --text-dark: #2d3748;
+            --text-light: #f7fafc;
+            --bg-body: #f4f7f6;
+            --card-bg: #ffffff;
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        .fade-in { opacity: 0; transform: translateY(20px); animation: fadeInUp 0.6s forwards; }
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+        .stagger-1 { animation-delay: 0.1s; }
+        .stagger-2 { animation-delay: 0.2s; }
+        .stagger-3 { animation-delay: 0.3s; }
+        .stagger-4 { animation-delay: 0.4s; }
+
+        /* NavBar */
+        .navbar {
+            position: sticky; top: 0;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 5%;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            z-index: 1000;
+        }
+        .nav-logo { font-weight: 700; font-size: 1.4rem; color: var(--primary); display: flex; align-items: center; gap: 10px; text-decoration: none; }
+        .nav-links { display: flex; gap: 2rem; list-style: none; }
+        .nav-links a { text-decoration: none; color: var(--text-dark); font-weight: 600; transition: var(--transition); display: flex; align-items: center; gap: 5px; }
+        .nav-links a:hover, .nav-links a.active { color: var(--primary); }
+        .menu-toggle { display: none; font-size: 1.8rem; cursor: pointer; }
+
+        /* Hero */
+        .hero {
+            padding: 4rem 5%;
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 3rem; align-items: center;
+            max-width: 1400px; margin: 0 auto;
+        }
+        .aqi-card-main {
+            background: var(--card-bg);
+            padding: 2.5rem; border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            text-align: center;
+            border-top: 8px solid var(--aqi-boa);
+        }
+        .aqi-value { font-size: 5rem; font-weight: 800; line-height: 1; margin: 1rem 0; }
+        .health-badge {
+            display: inline-block; padding: 0.5rem 1.5rem;
+            border-radius: 50px; font-weight: 700; margin-bottom: 1.5rem;
+        }
+        .aqi-detail-row {
+            display: flex; justify-content: center; gap: 2rem;
+            margin-top: 1.5rem; padding-top: 1.5rem;
+            border-top: 1px solid #edf2f7;
+        }
+        .aqi-detail-item { text-align: center; }
+        .aqi-detail-item .label { font-size: 0.7rem; text-transform: uppercase; color: #888; font-weight: 700; }
+        .aqi-detail-item .val { font-size: 1.4rem; font-weight: 700; color: var(--text-dark); }
+        .aqi-detail-item .unit { font-size: 0.75rem; color: #aaa; }
+
+        /* Stats Overview */
+        .overview-section {
+            padding: 3rem 5%; max-width: 1400px; margin: 0 auto;
+        }
+        .overview-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem; margin-top: 2rem;
+        }
+        .overview-card {
+            background: white; padding: 1.5rem; border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+            border-left: 4px solid var(--primary);
+            transition: var(--transition);
+        }
+        .overview-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+        .overview-card .label { font-size: 0.75rem; text-transform: uppercase; color: #888; font-weight: 700; letter-spacing: 0.5px; }
+        .overview-card .value { font-size: 2rem; font-weight: 700; margin: 0.5rem 0 0.2rem; }
+        .overview-card .sub { font-size: 0.8rem; color: #999; }
+
+        /* Methodology */
+        .methodology {
+            background: white; padding: 5rem 5%; margin-top: 3rem;
+        }
+        .method-grid {
+            max-width: 1200px; margin: 3rem auto 0;
+            display: grid; grid-template-columns: 300px 1fr;
+            gap: 4rem; align-items: center;
+        }
+        .sensor-icon-wrapper {
+            background: var(--bg-body); padding: 3rem; border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 6rem; color: var(--primary);
+        }
+        .method-tags { display: flex; gap: 12px; margin-top: 1.5rem; flex-wrap: wrap; }
+        .method-tag {
+            background: var(--bg-body); padding: 0.8rem 1.2rem; border-radius: 10px;
+            font-size: 0.85rem;
+        }
+        .method-tag strong { display: block; color: var(--text-dark); }
+        .method-tag small { color: #888; }
+
+        /* Footer */
+        .footer {
+            text-align: center; padding: 3rem 5%;
+            background: var(--text-dark); color: white; margin-top: 4rem;
+        }
+        .footer p { opacity: 0.8; margin-top: 0.5rem; font-size: 0.9rem; }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                position: fixed; right: -100%; top: 0; height: 100vh; width: 250px;
+                background: white; flex-direction: column; padding: 5rem 2rem;
+                transition: 0.4s ease; box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+            }
+            .nav-links.active { right: 0; }
+            .menu-toggle { display: block; }
+            .hero { grid-template-columns: 1fr; text-align: center; }
+            .hero-content .cta-row { justify-content: center; }
+            .method-grid { grid-template-columns: 1fr; text-align: center; }
+            .sensor-icon-wrapper { margin: 0 auto; width: 200px; height: 200px; font-size: 4rem; }
+            .method-tags { justify-content: center; }
+            .aqi-detail-row { flex-wrap: wrap; gap: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="nav-logo"><i class="ph-fill ph-wind"></i> Respira BV</a>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="index.html" class="active"><i class="ph ph-house"></i> Início</a></li>
+            <li><a href="mapa.html"><i class="ph ph-map-trifold"></i> Mapa</a></li>
+            <li><a href="dashboard.html"><i class="ph ph-chart-line-up"></i> Dashboard</a></li>
+        </ul>
+        <div class="menu-toggle" onclick="toggleMenu()"><i class="ph ph-list"></i></div>
+    </nav>
+
+    <main class="hero">
+        <div class="hero-content fade-in stagger-1">
+            <h1 style="font-size: 3rem; margin-bottom: 1.5rem;">Como está o ar em <span style="color: var(--primary);">Boa Vista</span> hoje?</h1>
+            <p style="font-size: 1.15rem; color: #666; margin-bottom: 2rem;">Monitoramento contínuo da poluição atmosférica com dados reais do sensor PurpleAir PA-II-SD, protegendo a saúde da comunidade roraimense.</p>
+            <div class="cta-row" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <a href="mapa.html" style="background: var(--primary); color: white; padding: 1rem 2rem; border-radius: 12px; text-decoration: none; font-weight: 600; transition: var(--transition);">
+                    <i class="ph ph-map-trifold"></i> Ver Mapa Interativo
+                </a>
+                <a href="dashboard.html" style="background: white; color: var(--primary); border: 2px solid var(--primary); padding: 1rem 2rem; border-radius: 12px; text-decoration: none; font-weight: 600; transition: var(--transition);">
+                    <i class="ph ph-chart-line-up"></i> Explorar Dashboard
+                </a>
+            </div>
+        </div>
+
+        <div class="aqi-card-main fade-in stagger-2" id="aqiContainer">
+            <p style="text-transform: uppercase; letter-spacing: 2px; font-weight: 700; color: #888; font-size: 0.8rem;">Última Leitura Disponível</p>
+            <div class="aqi-value" id="aqiValue">--</div>
+            <div class="health-badge" id="aqiStatus">Carregando...</div>
+            <p id="healthAdvice" style="color: #555;">Processando dados do sensor...</p>
+            <div class="aqi-detail-row" id="aqiDetails">
+                <div class="aqi-detail-item">
+                    <div class="label">PM2.5</div>
+                    <div class="val" id="detailPm25">--</div>
+                    <div class="unit">µg/m³</div>
+                </div>
+                <div class="aqi-detail-item">
+                    <div class="label">PM10</div>
+                    <div class="val" id="detailPm10">--</div>
+                    <div class="unit">µg/m³</div>
+                </div>
+                <div class="aqi-detail-item">
+                    <div class="label">Temp</div>
+                    <div class="val" id="detailTemp">--</div>
+                    <div class="unit">°C</div>
+                </div>
+                <div class="aqi-detail-item">
+                    <div class="label">Umidade</div>
+                    <div class="val" id="detailHum">--</div>
+                    <div class="unit">%</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <section class="overview-section fade-in stagger-3">
+        <h2 style="font-size: 1.8rem;"><i class="ph ph-chart-bar"></i> Panorama do Dataset (2024–2025)</h2>
+        <p id="overviewSubtitle" style="color: #666; margin-top: 0.5rem;">Carregando dados de monitoramento contínuo...</p>
+        <div class="overview-grid" id="overviewGrid">
+            <!-- Populated by JS -->
+        </div>
+    </section>
+
+    <section class="methodology fade-in stagger-4">
+        <h2 style="text-align: center; font-size: 2.2rem;"><i class="ph ph-flask"></i> Metodologia</h2>
+        <div class="method-grid">
+            <div class="sensor-icon-wrapper">
+                <i class="ph ph-cpu"></i>
+            </div>
+            <div>
+                <h3 style="font-size: 1.4rem; margin-bottom: 1rem;">Tecnologia de Alta Precisão</h3>
+                <p style="font-size: 1.05rem; color: #555;">
+                    Utilizamos o sensor <strong>PurpleAir PA-II-SD</strong> (ID: 56843), um dispositivo de monitoramento a laser que mede partículas finas (PM2.5 e PM10) em intervalos de 30 minutos. Este projeto é fruto do Trabalho de Conclusão de Curso de <strong>Cedric Williams</strong>, na Especialização em Computação Aplicada da <strong>UFRR</strong>.
+                </p>
+                <div class="method-tags">
+                    <div class="method-tag"><strong>PM2.5 &amp; PM10</strong><small>Partículas em Suspensão</small></div>
+                    <div class="method-tag"><strong>Temperatura &amp; Umidade</strong><small>Variáveis Ambientais</small></div>
+                    <div class="method-tag"><strong>Sazonalidade</strong><small>Foco em Queimadas (Fev–Abr)</small></div>
+                    <div class="method-tag"><strong>34.791 Registros</strong><small>30-Minute Average</small></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <strong style="font-size: 1.1rem;">Respira Boa Vista</strong>
+        <p>&copy; 2024–2025 | UFRR — Cedric Williams</p>
+        <p>TCC — Especialização em Computação Aplicada na Indústria 4.0</p>
+    </footer>
+
+    <script>
+    function toggleMenu() { document.getElementById('navLinks').classList.toggle('active'); }
+
+    function calculateAQI(pm25) {
+        if (pm25 <= 12.0) return Math.round((50 / 12.0) * pm25);
+        if (pm25 <= 35.4) return Math.round(51 + ((100 - 51) / (35.4 - 12.1)) * (pm25 - 12.1));
+        if (pm25 <= 55.4) return Math.round(101 + ((150 - 101) / (55.4 - 35.5)) * (pm25 - 35.5));
+        if (pm25 <= 150.4) return Math.round(151 + ((200 - 151) / (150.4 - 55.5)) * (pm25 - 55.5));
+        if (pm25 <= 250.4) return Math.round(201 + ((300 - 201) / (250.4 - 150.5)) * (pm25 - 150.5));
+        return Math.round(301 + ((500 - 301) / (500.4 - 250.5)) * (pm25 - 250.5));
+    }
+
+    function getAQIInfo(aqi) {
+        if (aqi <= 50) return { label: 'Boa', color: '#00e400', advice: 'O ar está ótimo para atividades ao ar livre!', text: '#000' };
+        if (aqi <= 100) return { label: 'Moderada', color: '#ffff00', advice: 'Pessoas sensíveis devem reduzir esforço pesado ao ar livre.', text: '#000' };
+        if (aqi <= 150) return { label: 'Prejudicial (Grupos Sensíveis)', color: '#ff7e00', advice: 'Evite exercícios prolongados ao ar livre.', text: '#fff' };
+        if (aqi <= 200) return { label: 'Prejudicial', color: '#ff0000', advice: 'Evite atividades ao ar livre. Use máscara se necessário.', text: '#fff' };
+        if (aqi <= 300) return { label: 'Muito Prejudicial', color: '#8f3f97', advice: 'Permaneça em ambientes fechados. Risco grave à saúde.', text: '#fff' };
+        return { label: 'Perigosa', color: '#7e0023', advice: 'Emergência de saúde! Evite qualquer exposição ao ar externo.', text: '#fff' };
+    }
+
+    // Load CSV and aggregate to daily
+    async function loadData() {
+        try {
+            const raw = await d3.csv('../dataset/processed/dataset_qualidade_ar_boavista_2024-2025_complete.csv', d => ({
+                date: d.date,
+                pm25: +d.pm25_ugm3,
+                pm10: +d.pm10_ugm3,
+                temp: +d.temperature_celsius,
+                hum: +d.humidity_percent,
+                aqi: +d.aqi,
+                month: +d.month,
+                year: +d.year
+            }));
+
+            // Aggregate to daily averages
+            const grouped = d3.group(raw, d => d.date);
+            const DATA = Array.from(grouped, ([date, records]) => ({
+                d: date,
+                p: d3.mean(records, r => r.pm25),
+                px: d3.max(records, r => r.pm25),
+                t: d3.mean(records, r => r.pm10),
+                c: d3.mean(records, r => r.temp),
+                h: d3.mean(records, r => r.hum)
+            })).sort((a, b) => a.d.localeCompare(b.d));
+
+            init(DATA);
+        } catch(e) {
+            console.error('Erro ao carregar dados:', e);
+            document.getElementById('aqiStatus').textContent = 'Erro ao carregar dados';
+            document.getElementById('healthAdvice').textContent = 'Verifique se o servidor HTTP local está rodando (python3 -m http.server 8000)';
+        }
+    }
+
+    function init(DATA) {
+        const latest = DATA[DATA.length - 1];
+        const aqi = calculateAQI(latest.p);
+        const info = getAQIInfo(aqi);
+
+        const container = document.getElementById('aqiContainer');
+        container.style.borderTopColor = info.color;
+        document.getElementById('aqiValue').textContent = aqi;
+        document.getElementById('aqiValue').style.color = info.color;
+        const statusEl = document.getElementById('aqiStatus');
+        statusEl.textContent = info.label;
+        statusEl.style.backgroundColor = info.color;
+        statusEl.style.color = info.text;
+        document.getElementById('healthAdvice').textContent = info.advice;
+
+        document.getElementById('detailPm25').textContent = latest.p.toFixed(1);
+        document.getElementById('detailPm10').textContent = latest.t.toFixed(1);
+        document.getElementById('detailTemp').textContent = latest.c.toFixed(1);
+        document.getElementById('detailHum').textContent = latest.h.toFixed(0);
+
+        // Overview stats
+        const pm25Vals = DATA.map(d => d.p);
+        const pm25Max = DATA.map(d => d.px);
+        const avgPm25 = pm25Vals.reduce((a,b) => a+b, 0) / pm25Vals.length;
+        const peakPm25 = Math.max(...pm25Max);
+        const daysAboveWHO = pm25Vals.filter(v => v > 15).length;
+        const daysAboveEPA = pm25Vals.filter(v => v > 35.4).length;
+        const avgTemp = DATA.map(d => d.c).reduce((a,b) => a+b, 0) / DATA.length;
+        const avgHum = DATA.map(d => d.h).reduce((a,b) => a+b, 0) / DATA.length;
+
+        // Update subtitle with actual record count
+        document.getElementById('overviewSubtitle').textContent =
+            `Resumo de ${DATA.length} dias de monitoramento contínuo — registros a cada 30 minutos.`;
+
+        const cards = [
+            { label: 'PM2.5 Médio Geral', value: avgPm25.toFixed(1), sub: 'µg/m³ (limite OMS: 15)', color: avgPm25 > 15 ? 'var(--aqi-sensivel)' : 'var(--aqi-boa)' },
+            { label: 'Pico Registrado', value: peakPm25.toFixed(1), sub: 'µg/m³ (30-min avg)', color: 'var(--aqi-prejudicial)' },
+            { label: 'Dias Acima OMS (>15)', value: daysAboveWHO, sub: `de ${DATA.length} dias monitorados`, color: '#ff7e00' },
+            { label: 'Dias Acima EPA (>35.4)', value: daysAboveEPA, sub: 'nível prejudicial a sensíveis', color: '#ff0000' },
+            { label: 'Temperatura Média', value: avgTemp.toFixed(1) + '°C', sub: 'média diária (2 anos)', color: 'var(--primary)' },
+            { label: 'Umidade Média', value: avgHum.toFixed(0) + '%', sub: 'média diária (2 anos)', color: 'var(--primary)' },
+        ];
+
+        document.getElementById('overviewGrid').innerHTML = cards.map(c => `
+            <div class="overview-card">
+                <div class="label">${c.label}</div>
+                <div class="value" style="color: ${c.color}">${c.value}</div>
+                <div class="sub">${c.sub}</div>
+            </div>
+        `).join('');
+    }
+
+    loadData();
+    </script>
+</body>
+</html>

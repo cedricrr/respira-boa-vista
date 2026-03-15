@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa - Respira Boa Vista</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        :root {
+            --aqi-boa: #00e400;
+            --aqi-moderada: #ffff00;
+            --aqi-sensivel: #ff7e00;
+            --aqi-prejudicial: #ff0000;
+            --aqi-muito-prejudicial: #8f3f97;
+            --aqi-perigosa: #7e0023;
+            --primary: #667eea;
+            --text-dark: #2d3748;
+            --bg-body: #f4f7f6;
+            --card-bg: #ffffff;
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-dark); }
+
+        /* NavBar */
+        .navbar {
+            position: sticky; top: 0;
+            background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);
+            padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 1000;
+        }
+        .nav-logo { font-weight: 700; font-size: 1.4rem; color: var(--primary); display: flex; align-items: center; gap: 10px; text-decoration: none; }
+        .nav-links { display: flex; gap: 2rem; list-style: none; }
+        .nav-links a { text-decoration: none; color: var(--text-dark); font-weight: 600; transition: var(--transition); display: flex; align-items: center; gap: 5px; }
+        .nav-links a.active { color: var(--primary); }
+        .menu-toggle { display: none; font-size: 1.8rem; cursor: pointer; }
+
+        /* Layout */
+        .map-layout { height: calc(100vh - 65px); display: grid; grid-template-columns: 360px 1fr; }
+
+        /* Sidebar */
+        .sidebar {
+            background: white; padding: 1.5rem; box-shadow: 2px 0 15px rgba(0,0,0,0.05);
+            z-index: 900; overflow-y: auto; display: flex; flex-direction: column; gap: 1.2rem;
+        }
+        .sidebar h2 { font-size: 1.2rem; display: flex; align-items: center; gap: 8px; }
+        .filter-group { }
+        .filter-group label { display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #888; margin-bottom: 0.4rem; letter-spacing: 0.5px; }
+        .filter-group select {
+            width: 100%; padding: 0.75rem; border: 2px solid #edf2f7; border-radius: 10px;
+            font-family: inherit; font-size: 0.95rem; cursor: pointer; transition: var(--transition);
+            background: white;
+        }
+        .filter-group select:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(102,126,234,0.1); }
+        .filter-actions { display: flex; gap: 0.5rem; }
+        .btn-apply {
+            flex: 1; background: var(--primary); color: white; border: none; padding: 0.85rem;
+            border-radius: 12px; font-weight: 600; cursor: pointer; transition: var(--transition);
+            display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.9rem;
+        }
+        .btn-apply:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102,126,234,0.3); }
+        .btn-reset {
+            background: white; color: var(--primary); border: 2px solid var(--primary);
+            padding: 0.85rem 1rem; border-radius: 12px; font-weight: 600; cursor: pointer;
+            transition: var(--transition); font-size: 0.9rem;
+        }
+        .btn-reset:hover { background: var(--bg-body); }
+
+        /* Stats mini-cards */
+        .sidebar-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+        .mini-stat {
+            background: var(--bg-body); padding: 0.8rem; border-radius: 10px; text-align: center;
+        }
+        .mini-stat .label { font-size: 0.65rem; text-transform: uppercase; color: #888; font-weight: 700; }
+        .mini-stat .val { font-size: 1.3rem; font-weight: 700; margin-top: 0.2rem; }
+        .mini-stat .unit { font-size: 0.7rem; color: #aaa; }
+
+        .period-info {
+            background: var(--bg-body); padding: 0.8rem; border-radius: 10px;
+            font-size: 0.8rem; color: #666; text-align: center;
+        }
+        .period-info strong { color: var(--text-dark); }
+
+        /* Map */
+        #map { width: 100%; height: 100%; }
+
+        /* Leaflet popup */
+        .leaflet-popup-content-wrapper { border-radius: 16px; padding: 0; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+        .leaflet-popup-content { margin: 0; min-width: 260px; }
+        .popup-header { background: var(--primary); color: white; padding: 1rem 1.2rem; }
+        .popup-header h4 { margin: 0; font-size: 1rem; }
+        .popup-header small { opacity: 0.85; }
+        .popup-body { padding: 1rem 1.2rem; }
+        .popup-body .aqi-display { text-align: center; margin: 0.8rem 0; }
+        .popup-body .aqi-num { font-size: 2.5rem; font-weight: 800; }
+        .popup-body .aqi-badge { display: inline-block; padding: 0.4rem 1rem; border-radius: 50px; font-weight: 700; font-size: 0.85rem; }
+        .popup-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 0.8rem; }
+        .popup-stat { background: var(--bg-body); padding: 0.6rem; border-radius: 8px; text-align: center; font-size: 0.8rem; }
+        .popup-stat strong { display: block; font-size: 1rem; color: var(--text-dark); }
+
+        /* Pulse animation */
+        @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+
+        @media (max-width: 900px) {
+            .map-layout { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+            .sidebar { max-height: 45vh; }
+            .nav-links {
+                position: fixed; right: -100%; top: 0; height: 100vh; width: 250px;
+                background: white; flex-direction: column; padding: 5rem 2rem;
+                transition: 0.4s ease; box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+            }
+            .nav-links.active { right: 0; }
+            .menu-toggle { display: block; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="nav-logo"><i class="ph-fill ph-wind"></i> Respira BV</a>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="index.html"><i class="ph ph-house"></i> Início</a></li>
+            <li><a href="mapa.html" class="active"><i class="ph ph-map-trifold"></i> Mapa</a></li>
+            <li><a href="dashboard.html"><i class="ph ph-chart-line-up"></i> Dashboard</a></li>
+        </ul>
+        <div class="menu-toggle" onclick="toggleMenu()"><i class="ph ph-list"></i></div>
+    </nav>
+
+    <div class="map-layout">
+        <aside class="sidebar">
+            <h2><i class="ph ph-sliders"></i> Filtros</h2>
+
+            <div class="filter-group">
+                <label>Ano</label>
+                <select id="filter-year">
+                    <option value="">Todos os anos</option>
+                    <option value="2024">2024</option>
+                    <option value="2025">2025</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Mês</label>
+                <select id="filter-month">
+                    <option value="">Todos os meses</option>
+                    <option value="1">Janeiro</option><option value="2">Fevereiro</option>
+                    <option value="3">Março</option><option value="4">Abril</option>
+                    <option value="5">Maio</option><option value="6">Junho</option>
+                    <option value="7">Julho</option><option value="8">Agosto</option>
+                    <option value="9">Setembro</option><option value="10">Outubro</option>
+                    <option value="11">Novembro</option><option value="12">Dezembro</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Dia</label>
+                <select id="filter-day"><option value="">Todos os dias</option></select>
+            </div>
+
+            <div class="filter-actions">
+                <button class="btn-apply" onclick="applyFilters()"><i class="ph ph-check-circle"></i> Aplicar</button>
+                <button class="btn-reset" onclick="resetFilters()"><i class="ph ph-arrow-counter-clockwise"></i></button>
+            </div>
+
+            <div class="period-info" id="periodInfo">
+                <strong>Carregando dados...</strong>
+            </div>
+
+            <div class="sidebar-stats" id="sidebarStats">
+                <div class="mini-stat"><div class="label">PM2.5 Médio</div><div class="val" id="sPm25">--</div><div class="unit">µg/m³</div></div>
+                <div class="mini-stat"><div class="label">PM10 Médio</div><div class="val" id="sPm10">--</div><div class="unit">µg/m³</div></div>
+                <div class="mini-stat"><div class="label">Temperatura</div><div class="val" id="sTemp">--</div><div class="unit">°C</div></div>
+                <div class="mini-stat"><div class="label">Umidade</div><div class="val" id="sHum">--</div><div class="unit">%</div></div>
+                <div class="mini-stat"><div class="label">IQA Médio</div><div class="val" id="sAqi">--</div><div class="unit">índice</div></div>
+                <div class="mini-stat"><div class="label">Registros</div><div class="val" id="sCount">--</div><div class="unit">dias</div></div>
+            </div>
+
+            <div style="padding: 0.8rem; background: var(--bg-body); border-radius: 10px; font-size: 0.8rem; color: #666;">
+                <i class="ph ph-info"></i> <strong>Dica:</strong> Clique no marcador do sensor para ver detalhes. Use os filtros para explorar períodos específicos.
+            </div>
+        </aside>
+
+        <div id="map"></div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        function toggleMenu() { document.getElementById('navLinks').classList.toggle('active'); }
+
+        // Populate days
+        const daySelect = document.getElementById('filter-day');
+        for (let i = 1; i <= 31; i++) {
+            const opt = document.createElement('option');
+            opt.value = i; opt.textContent = i;
+            daySelect.appendChild(opt);
+        }
+
+        // AQI functions
+        function calculateAQI(pm25) {
+            if (pm25 <= 12.0) return Math.round((50 / 12.0) * pm25);
+            if (pm25 <= 35.4) return Math.round(51 + ((100 - 51) / (35.4 - 12.1)) * (pm25 - 12.1));
+            if (pm25 <= 55.4) return Math.round(101 + ((150 - 101) / (55.4 - 35.5)) * (pm25 - 35.5));
+            if (pm25 <= 150.4) return Math.round(151 + ((200 - 151) / (150.4 - 55.5)) * (pm25 - 55.5));
+            if (pm25 <= 250.4) return Math.round(201 + ((300 - 201) / (250.4 - 150.5)) * (pm25 - 150.5));
+            return Math.round(301 + ((500 - 301) / (500.4 - 250.5)) * (pm25 - 250.5));
+        }
+        function getAQIColor(aqi) {
+            if (aqi <= 50) return '#00e400';
+            if (aqi <= 100) return '#ffff00';
+            if (aqi <= 150) return '#ff7e00';
+            if (aqi <= 200) return '#ff0000';
+            if (aqi <= 300) return '#8f3f97';
+            return '#7e0023';
+        }
+        function getAQICategory(aqi) {
+            if (aqi <= 50) return 'Boa';
+            if (aqi <= 100) return 'Moderada';
+            if (aqi <= 150) return 'Prejudicial (Sensíveis)';
+            if (aqi <= 200) return 'Prejudicial';
+            if (aqi <= 300) return 'Muito Prejudicial';
+            return 'Perigosa';
+        }
+
+        const SENSOR = { lat: 2.828993, lng: -60.662812, name: 'Sensor PurpleAir 56843', city: 'Boa Vista, Roraima' };
+
+        // Init Map
+        const map = L.map('map').setView([SENSOR.lat, SENSOR.lng], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors', maxZoom: 19
+        }).addTo(map);
+        L.control.scale({ imperial: false, metric: true, position: 'bottomleft' }).addTo(map);
+
+        let sensorMarker = null;
+        let radiusCircle = null;
+
+        // Data
+        let allData = [];
+        let filteredData = [];
+
+        async function loadData() {
+            try {
+                const raw = await d3.csv('../dataset/processed/dataset_qualidade_ar_boavista_2024-2025_complete.csv', d => ({
+                    date: d.date,
+                    pm25: +d.pm25_ugm3,
+                    pm10: +d.pm10_ugm3,
+                    temp: +d.temperature_celsius,
+                    hum: +d.humidity_percent,
+                    aqi: +d.aqi,
+                    month: +d.month,
+                    year: +d.year
+                }));
+
+                const grouped = d3.group(raw, d => d.date);
+                allData = Array.from(grouped, ([date, records]) => ({
+                    d: date,
+                    p: d3.mean(records, r => r.pm25),
+                    px: d3.max(records, r => r.pm25),
+                    t: d3.mean(records, r => r.pm10),
+                    c: d3.mean(records, r => r.temp),
+                    h: d3.mean(records, r => r.hum)
+                })).sort((a, b) => a.d.localeCompare(b.d));
+
+                filteredData = [...allData];
+                document.getElementById('periodInfo').innerHTML = `<strong>Período completo</strong> — ${allData.length} dias de dados`;
+                updateSidebarStats();
+                updateMarker();
+            } catch(e) {
+                console.error('Erro ao carregar dados:', e);
+                document.getElementById('periodInfo').innerHTML = '<strong>Erro</strong> — verifique o servidor HTTP';
+            }
+        }
+
+        function mean(arr) { return arr.reduce((a,b) => a+b, 0) / arr.length; }
+
+        function updateSidebarStats() {
+            if (filteredData.length === 0) return;
+            const pm25 = filteredData.map(d => d.p);
+            const pm10 = filteredData.map(d => d.t);
+            const temps = filteredData.map(d => d.c);
+            const hums = filteredData.map(d => d.h);
+            const aqis = pm25.map(v => calculateAQI(v));
+
+            document.getElementById('sPm25').textContent = mean(pm25).toFixed(1);
+            document.getElementById('sPm10').textContent = mean(pm10).toFixed(1);
+            document.getElementById('sTemp').textContent = mean(temps).toFixed(1);
+            document.getElementById('sHum').textContent = mean(hums).toFixed(0);
+            document.getElementById('sAqi').textContent = Math.round(mean(aqis));
+            document.getElementById('sCount').textContent = filteredData.length;
+        }
+
+        function updateMarker() {
+            if (filteredData.length === 0) return;
+            const latest = filteredData[filteredData.length - 1];
+            const aqi = calculateAQI(latest.p);
+            const color = getAQIColor(aqi);
+            const category = getAQICategory(aqi);
+
+            if (sensorMarker) map.removeLayer(sensorMarker);
+            if (radiusCircle) map.removeLayer(radiusCircle);
+
+            const icon = L.divIcon({
+                className: '',
+                html: `<div style="
+                    background: ${color}; width: 52px; height: 52px; border-radius: 50%;
+                    border: 4px solid white; box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+                    display: flex; align-items: center; justify-content: center;
+                    font-weight: 800; color: ${aqi <= 100 ? '#333' : 'white'};
+                    font-size: 15px; font-family: Inter, sans-serif;
+                    animation: pulse 2s infinite;
+                ">${Math.round(aqi)}</div>`,
+                iconSize: [52, 52], iconAnchor: [26, 26], popupAnchor: [0, -26]
+            });
+
+            const avgPm25 = mean(filteredData.map(d => d.p));
+            const avgAqi = calculateAQI(avgPm25);
+
+            const popup = `
+                <div class="popup-header">
+                    <h4><i class="ph ph-thermometer"></i> ${SENSOR.name}</h4>
+                    <small>${SENSOR.city}</small>
+                </div>
+                <div class="popup-body">
+                    <div class="aqi-display">
+                        <div class="aqi-num" style="color: ${color}">${Math.round(aqi)}</div>
+                        <div class="aqi-badge" style="background: ${color}; color: ${aqi <= 100 ? '#333' : 'white'}">${category}</div>
+                    </div>
+                    <div class="popup-stats">
+                        <div class="popup-stat">PM2.5<strong>${latest.p.toFixed(1)} µg/m³</strong></div>
+                        <div class="popup-stat">PM10<strong>${latest.t.toFixed(1)} µg/m³</strong></div>
+                        <div class="popup-stat">Temp<strong>${latest.c.toFixed(1)} °C</strong></div>
+                        <div class="popup-stat">Umidade<strong>${latest.h.toFixed(0)}%</strong></div>
+                    </div>
+                    <p style="margin-top:0.8rem; font-size:0.75rem; color:#888; text-align:center;">
+                        IQA Médio do período: <strong>${Math.round(avgAqi)}</strong> | ${filteredData.length} dias
+                    </p>
+                </div>
+            `;
+
+            sensorMarker = L.marker([SENSOR.lat, SENSOR.lng], { icon })
+                .addTo(map).bindPopup(popup, { maxWidth: 320 }).openPopup();
+
+            radiusCircle = L.circle([SENSOR.lat, SENSOR.lng], {
+                color, fillColor: color, fillOpacity: 0.12, radius: 1500, weight: 2
+            }).addTo(map);
+        }
+
+        function applyFilters() {
+            const year = document.getElementById('filter-year').value;
+            const month = document.getElementById('filter-month').value;
+            const day = document.getElementById('filter-day').value;
+
+            filteredData = allData.filter(item => {
+                const d = new Date(item.d);
+                if (year && d.getFullYear() !== parseInt(year)) return false;
+                if (month && (d.getMonth() + 1) !== parseInt(month)) return false;
+                if (day && d.getDate() !== parseInt(day)) return false;
+                return true;
+            });
+
+            if (filteredData.length === 0) {
+                alert('Nenhum dado encontrado para os filtros selecionados.');
+                return;
+            }
+
+            const months = ['','Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+            let info = '';
+            if (day && month && year) info = `${day} de ${months[parseInt(month)]} de ${year}`;
+            else if (month && year) info = `${months[parseInt(month)]} de ${year}`;
+            else if (year) info = `Ano ${year}`;
+            else if (month) info = `${months[parseInt(month)]} (todos os anos)`;
+            else info = 'Período completo';
+
+            document.getElementById('periodInfo').innerHTML = `<strong>${info}</strong> — ${filteredData.length} dias de dados`;
+
+            updateSidebarStats();
+            updateMarker();
+        }
+
+        function resetFilters() {
+            document.getElementById('filter-year').value = '';
+            document.getElementById('filter-month').value = '';
+            document.getElementById('filter-day').value = '';
+            filteredData = [...allData];
+            document.getElementById('periodInfo').innerHTML = `<strong>Período completo</strong> — ${allData.length} dias de dados`;
+            updateSidebarStats();
+            updateMarker();
+        }
+
+        // AQI Legend
+        const legend = L.control({ position: 'bottomright' });
+        legend.onAdd = function() {
+            const div = L.DomUtil.create('div', 'aqi-legend');
+            div.style.cssText = 'background: white; padding: 10px 14px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); font-family: Inter, sans-serif; font-size: 0.75rem;';
+            div.innerHTML = '<strong style="display:block;margin-bottom:6px;">Escala IQA</strong>' +
+                [
+                    { color: '#00e400', label: 'Boa (0-50)' },
+                    { color: '#ffff00', label: 'Moderada (51-100)' },
+                    { color: '#ff7e00', label: 'Sensíveis (101-150)' },
+                    { color: '#ff0000', label: 'Prejudicial (151-200)' },
+                    { color: '#8f3f97', label: 'Muito Prejudicial (200+)' }
+                ].map(i => `<div style="display:flex;align-items:center;gap:6px;margin:3px 0;"><span style="width:14px;height:14px;border-radius:3px;background:${i.color};display:inline-block;"></span>${i.label}</div>`).join('');
+            return div;
+        };
+        legend.addTo(map);
+
+        // Pulse animation
+        const style = document.createElement('style');
+        style.textContent = `@keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }`;
+        document.head.appendChild(style);
+
+        // Init
+        loadData();
+    </script>
+</body>
+</html>
