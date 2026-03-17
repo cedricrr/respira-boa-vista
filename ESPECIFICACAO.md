@@ -69,14 +69,14 @@ Onde:
 - DEVE conter navegacao para as paginas de mapa e dashboard
 - DEVE ser responsivo (mobile, tablet, desktop)
 
-### RF-05: Dashboard de Dados (dashboard_d3js_v2_filtros.html)
+### RF-05: Dashboard de Dados (dashboard.html)
 - DEVE exibir graficos interativos de series temporais usando D3.js v7
 - DEVE conter cards de estatisticas: PM2.5 medio, PM2.5 maximo, AQI medio, total de registros
 - DEVE permitir filtragem por: ano, mes e dia
 - DEVE atualizar graficos e estatisticas dinamicamente ao alterar filtros
-- Os dados DEVEM estar embutidos no HTML como JSON inline
+- Os dados DEVEM ser carregados via `d3.csv()` a partir de arquivo CSV
 
-### RF-06: Mapa Interativo (mapa_leaflet_v2_filtros.html)
+### RF-06: Mapa Interativo (mapa.html)
 - DEVE exibir mapa interativo usando Leaflet v1.9.4 com tiles OpenStreetMap
 - DEVE exibir marcador na localizacao do sensor (2,828993 N, 60,662812 W)
 - DEVE conter painel de filtros com selecao de ano e mes
@@ -207,9 +207,9 @@ timestamp_utc,pm25_ugm3,pm10_ugm3,temperature_celsius,humidity_percent,aqi,aqi_c
 │  └─────────────┘  └─────────────┘  └────────────────┘  │
 │                                                         │
 │  ┌──────────────────────────────────────────────────┐   │
-│  │              Dados (JSON inline)                 │   │
-│  │  - Array de objetos embutido no <script>         │   │
-│  │  - Carregado na inicializacao da pagina          │   │
+│  │              Dados (CSV via d3.csv())             │   │
+│  │  - Arquivo CSV carregado via fetch/d3.csv()      │   │
+│  │  - Agregado a medias diarias na inicializacao    │   │
 │  └──────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────┘
 ```
@@ -218,8 +218,8 @@ timestamp_utc,pm25_ugm3,pm10_ugm3,temperature_celsius,humidity_percent,aqi,aqi_c
 
 ```
 Portal (index.html)
-  ├── Dashboard (dashboard_d3js_v2_filtros.html)
-  └── Mapa (mapa_leaflet_v2_filtros.html)
+  ├── Dashboard (dashboard.html)
+  └── Mapa (mapa.html)
 ```
 
 ### 6.3 Design Responsivo

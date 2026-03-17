@@ -55,5 +55,7 @@
 ## Infraestrutura
 
 - **GitHub** — repositório e versionamento
-- **Servidor HTTP local** (`python3 -m http.server`) — necessário para servir os arquivos (CORS)
+- **GitHub Pages** — hospedagem da aplicação via GitHub Actions (deploy automático)
+- **GitHub Actions** — workflow de deploy (`.github/workflows/deploy-pages.yml`)
+- **Servidor HTTP local** (`python3 -m http.server`) — para desenvolvimento local (necessário por CORS)
 - **Sem build tools** — sem webpack, Vite, npm dependencies — páginas estáticas puras

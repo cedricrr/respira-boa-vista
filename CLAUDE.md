@@ -8,18 +8,25 @@ Respira Boa Vista is a TCC (undergraduate thesis) project for air quality monito
 
 ```
 respira-boa-vista/
-├── web/                   # Frontend application (3 HTML pages)
+├── web/                   # Frontend source (3 HTML pages)
 │   ├── index.html         # Home/Landing — hero AQI card + overview stats
 │   ├── dashboard.html     # Dashboard — 3 D3.js charts + filters (year/month/day)
 │   └── mapa.html          # Map — Leaflet interactive map + sidebar stats
+├── docs/                  # GitHub Pages deployment (copy of web/ + dataset)
+│   ├── index.html         # Deployed home page
+│   ├── dashboard.html     # Deployed dashboard
+│   ├── mapa.html          # Deployed map
+│   ├── tecnologias.md     # Technology stack listing
+│   └── dataset/processed/ # CSV copy for GitHub Pages access
 ├── dataset/
 │   ├── raw/               # Raw CSV from PurpleAir API
 │   └── processed/         # Processed CSVs (complete, daily, monthly) + metadata JSON
-├── docs/                  # Project documentation
-│   └── tecnologias.md     # Technology stack listing
+├── .github/workflows/     # CI/CD
+│   └── deploy-pages.yml   # GitHub Pages deploy via Actions
 ├── ESPECIFICACAO.md       # Technical specifications
 ├── README.md              # Project README
 ├── CITATION.cff           # Citation metadata
+├── .nojekyll              # Skip Jekyll processing on GitHub Pages
 └── LICENSE                # MIT (code) + CC BY 4.0 (data)
 ```
 
@@ -44,11 +51,21 @@ A local HTTP server is required due to CORS restrictions on `d3.csv()` file load
 
 ### Data path
 
-All 3 HTML pages load data from:
-```
-../dataset/processed/dataset_qualidade_ar_boavista_2024-2025_complete.csv
-```
-This relative path works when served from the project root.
+- **`web/` pages** load data using dynamic `basePath`:
+  ```js
+  const basePath = location.hostname.includes('github.io') ? '/respira-boa-vista' : '';
+  d3.csv(basePath + '/dataset/processed/dataset_qualidade_ar_boavista_2024-2025_complete.csv')
+  ```
+- **`docs/` pages** (GitHub Pages) use relative path:
+  ```js
+  d3.csv('./dataset/processed/dataset_qualidade_ar_boavista_2024-2025_complete.csv')
+  ```
+
+### Deployment
+
+- GitHub Pages serves from root (`path: '.'`) via GitHub Actions (`.github/workflows/deploy-pages.yml`)
+- The `docs/` folder contains a self-contained copy of the app with its own `dataset/processed/` folder
+- URL: `https://cedricrr.github.io/respira-boa-vista/docs/index.html`
 
 ### CSV columns
 

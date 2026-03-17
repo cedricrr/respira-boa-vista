@@ -29,20 +29,26 @@ O **Respira Boa Vista** e um projeto de ciencia aberta que coleta, processa e di
 respira-boa-vista/
 ├── README.md                          # Documentacao principal do projeto
 ├── ESPECIFICACAO.md                   # Especificacao tecnica minima
+├── CLAUDE.md                          # Contexto do projeto para IA
 ├── LICENSE                            # Licenca MIT (codigo)
 ├── CITATION.cff                       # Metadados de citacao (CFF v1.2.0)
 ├── .gitignore
+├── .nojekyll                          # Desabilita Jekyll no GitHub Pages
 │
-├── web/                               # Aplicacao web (frontend)
-│   ├── package.json
-│   ├── index.html                     # Portal principal (v1)
-│   ├── dashboard_d3js.html            # Dashboard basico
-│   ├── dashboard_d3js_v2_filtros.html # Dashboard com filtros (atual)
-│   ├── mapa_leaflet_v2_filtros.html   # Mapa interativo com filtros (atual)
-│   └── v1/                            # Versao anterior (legado)
-│       ├── index.html
-│       ├── dashboard_d3js_v2_filtros.html
-│       └── mapa_leaflet_v2_filtros.html
+├── .github/workflows/
+│   └── deploy-pages.yml               # Deploy automatico no GitHub Pages
+│
+├── web/                               # Aplicacao web (codigo-fonte)
+│   ├── index.html                     # Portal principal
+│   ├── dashboard.html                 # Dashboard com graficos D3.js e filtros
+│   └── mapa.html                      # Mapa interativo Leaflet com filtros
+│
+├── docs/                              # Versao deployada no GitHub Pages
+│   ├── index.html                     # Portal principal (deploy)
+│   ├── dashboard.html                 # Dashboard (deploy)
+│   ├── mapa.html                      # Mapa interativo (deploy)
+│   ├── tecnologias.md                 # Stack de tecnologias
+│   └── dataset/processed/             # Copia do CSV para acesso no Pages
 │
 └── dataset/                           # Dados de qualidade do ar
     ├── README.md
@@ -117,8 +123,8 @@ Aplicacao HTML/CSS/JS estatica para consulta interativa dos dados, sem necessida
 ### Paginas
 
 1. **Portal Principal** (`web/index.html`) -- Pagina inicial com qualidade do ar atual, AQI em tempo real e orientacoes de saude
-2. **Dashboard** (`web/dashboard_d3js_v2_filtros.html`) -- Graficos interativos com D3.js, cards de estatisticas e filtros por ano/mes/dia
-3. **Mapa Interativo** (`web/mapa_leaflet_v2_filtros.html`) -- Mapa Leaflet com localizacao do sensor, filtros temporais e painel de estatisticas
+2. **Dashboard** (`web/dashboard.html`) -- Graficos interativos com D3.js, cards de estatisticas e filtros por ano/mes/dia
+3. **Mapa Interativo** (`web/mapa.html`) -- Mapa Leaflet com localizacao do sensor, filtros temporais e painel de estatisticas
 
 ### Tecnologias
 
@@ -142,18 +148,19 @@ Aplicacao HTML/CSS/JS estatica para consulta interativa dos dados, sem necessida
 | Muito Prejudicial | 201-300 | Roxo (#8f3f97) |
 | Perigosa | 300+ | Vermelho escuro (#7e0023) |
 
-### Como Executar
+### Acesso Online
 
-A aplicacao web e composta apenas de arquivos estaticos. Para executar localmente:
+A aplicacao esta disponivel em: **https://cedricrr.github.io/respira-boa-vista/docs/index.html**
+
+O deploy e feito automaticamente via GitHub Actions a cada push na branch `main`.
+
+### Como Executar Localmente
+
+A aplicacao web e composta apenas de arquivos estaticos. Um servidor HTTP local e necessario devido a restricoes CORS do `d3.csv()`:
 
 ```bash
-# Opcao 1: Abrir diretamente no navegador
-open web/index.html
-
-# Opcao 2: Servir com servidor HTTP local
-cd web
 python3 -m http.server 8000
-# Acesse http://localhost:8000
+# Acesse http://localhost:8000/web/index.html
 ```
 
 ---
@@ -186,7 +193,7 @@ PurpleAir API  -->  Download CSV bruto  -->  Processamento  -->  Datasets CSV  -
 1. **Coleta**: API PurpleAir consulta sensor 56843 em intervalos de 3 meses
 2. **Download**: 34.791 registros obtidos em 9 requisicoes (34 segundos)
 3. **Processamento**: Conversao de temperatura (F para C), calculo do AQI (formula US EPA), agregacao temporal
-4. **Publicacao**: Dados embutidos como JSON inline nos arquivos HTML para consumo no frontend
+4. **Publicacao**: Dados carregados via `d3.csv()` no frontend a partir de arquivos CSV
 
 ---
 
