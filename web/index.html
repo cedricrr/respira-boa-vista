@@ -354,7 +354,7 @@
 
     async function loadData() {
         try {
-            const raw = await d3.csv('/respira-boa-vista/dataset/processed/dataset_qualidade_ar_boavista_2024-2025_complete.csv', d => ({
+            const raw = await d3.csv('../dataset/processed/dataset_qualidade_ar_boavista_2024-2025_complete.csv', d => ({
                 date: d.date,
                 pm25: +d.pm25_ugm3,
                 pm10: +d.pm10_ugm3,
