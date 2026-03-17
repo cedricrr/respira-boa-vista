@@ -4,55 +4,81 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Respira Boa Vista - Portal de Qualidade do Ar</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
         :root {
-            --aqi-boa: #00e400;
-            --aqi-moderada: #ffff00;
-            --aqi-sensivel: #ff7e00;
-            --aqi-prejudicial: #ff0000;
-            --aqi-muito-prejudicial: #8f3f97;
-            --aqi-perigosa: #7e0023;
-            --primary: #667eea;
-            --primary-dark: #764ba2;
-            --text-dark: #2d3748;
-            --text-light: #f7fafc;
-            --bg-body: #f4f7f6;
-            --card-bg: #ffffff;
-            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --aqi-boa: #4A9E5C;
+            --aqi-moderada: #D4A843;
+            --aqi-sensivel: #D4793A;
+            --aqi-prejudicial: #C4392F;
+            --aqi-muito-prejudicial: #7B3580;
+            --aqi-perigosa: #6B1D2A;
+
+            --primary: #B87A2E;
+            --primary-light: rgba(184, 122, 46, 0.10);
+
+            --ink: #3A3028;
+            --ink-secondary: #6E6358;
+            --ink-muted: #9E948A;
+            --ink-faint: #BFB8AF;
+
+            --canvas: #F3EEE6;
+            --surface: #FAF8F4;
+            --surface-raised: #FDFCFA;
+
+            --border: rgba(58, 48, 40, 0.10);
+            --border-emphasis: rgba(58, 48, 40, 0.18);
+
+            --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--bg-body);
-            color: var(--text-dark);
+            background-color: var(--canvas);
+            color: var(--ink);
             line-height: 1.6;
             overflow-x: hidden;
         }
-        .fade-in { opacity: 0; transform: translateY(20px); animation: fadeInUp 0.6s forwards; }
+        .fade-in { opacity: 0; transform: translateY(12px); animation: fadeInUp 0.5s forwards; }
         @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
-        .stagger-1 { animation-delay: 0.1s; }
-        .stagger-2 { animation-delay: 0.2s; }
-        .stagger-3 { animation-delay: 0.3s; }
-        .stagger-4 { animation-delay: 0.4s; }
+        .stagger-1 { animation-delay: 0.08s; }
+        .stagger-2 { animation-delay: 0.16s; }
+        .stagger-3 { animation-delay: 0.24s; }
+        .stagger-4 { animation-delay: 0.32s; }
+
+        /* Breathing pulse for AQI */
+        @keyframes breathe {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.015); }
+        }
 
         /* NavBar */
         .navbar {
             position: sticky; top: 0;
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(10px);
+            background: var(--surface);
             padding: 1rem 5%;
             display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border-bottom: 1px solid var(--border);
             z-index: 1000;
         }
-        .nav-logo { font-weight: 700; font-size: 1.4rem; color: var(--primary); display: flex; align-items: center; gap: 10px; text-decoration: none; }
+        .nav-logo {
+            font-weight: 700; font-size: 1.3rem; color: var(--primary);
+            display: flex; align-items: center; gap: 8px; text-decoration: none;
+            letter-spacing: -0.02em;
+        }
         .nav-links { display: flex; gap: 2rem; list-style: none; }
-        .nav-links a { text-decoration: none; color: var(--text-dark); font-weight: 600; transition: var(--transition); display: flex; align-items: center; gap: 5px; }
+        .nav-links a {
+            text-decoration: none; color: var(--ink-secondary); font-weight: 500;
+            font-size: 0.9rem; transition: var(--transition);
+            display: flex; align-items: center; gap: 5px;
+        }
         .nav-links a:hover, .nav-links a.active { color: var(--primary); }
-        .menu-toggle { display: none; font-size: 1.8rem; cursor: pointer; }
+        .menu-toggle { display: none; font-size: 1.8rem; cursor: pointer; color: var(--ink-secondary); }
 
         /* Hero */
         .hero {
@@ -61,90 +87,159 @@
             gap: 3rem; align-items: center;
             max-width: 1400px; margin: 0 auto;
         }
+        .hero-content h1 {
+            font-size: 2.8rem; font-weight: 800; line-height: 1.1;
+            letter-spacing: -0.03em; margin-bottom: 1.5rem; color: var(--ink);
+        }
+        .hero-content h1 span { color: var(--primary); }
+        .hero-content p {
+            font-size: 1.05rem; color: var(--ink-secondary); margin-bottom: 2rem;
+            line-height: 1.7; max-width: 480px;
+        }
+        .cta-row { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+        .cta-primary {
+            background: var(--primary); color: #fff; padding: 0.85rem 1.75rem;
+            border-radius: var(--radius-md); text-decoration: none; font-weight: 600;
+            font-size: 0.9rem; transition: var(--transition);
+            display: inline-flex; align-items: center; gap: 6px;
+        }
+        .cta-primary:hover { filter: brightness(0.92); }
+        .cta-secondary {
+            background: transparent; color: var(--primary);
+            border: 1.5px solid var(--border-emphasis); padding: 0.85rem 1.75rem;
+            border-radius: var(--radius-md); text-decoration: none; font-weight: 600;
+            font-size: 0.9rem; transition: var(--transition);
+            display: inline-flex; align-items: center; gap: 6px;
+        }
+        .cta-secondary:hover { border-color: var(--primary); background: var(--primary-light); }
+
+        /* AQI Card */
         .aqi-card-main {
-            background: var(--card-bg);
-            padding: 2.5rem; border-radius: 24px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            background: var(--surface-raised);
+            padding: 2.5rem; border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
             text-align: center;
-            border-top: 8px solid var(--aqi-boa);
+            animation: breathe 4s ease-in-out infinite;
         }
-        .aqi-value { font-size: 5rem; font-weight: 800; line-height: 1; margin: 1rem 0; }
+        .aqi-card-label {
+            text-transform: uppercase; letter-spacing: 0.12em; font-weight: 700;
+            color: var(--ink-muted); font-size: 0.7rem;
+        }
+        .aqi-value {
+            font-size: 5rem; font-weight: 800; line-height: 1;
+            margin: 0.75rem 0; letter-spacing: -0.04em;
+        }
         .health-badge {
-            display: inline-block; padding: 0.5rem 1.5rem;
-            border-radius: 50px; font-weight: 700; margin-bottom: 1.5rem;
+            display: inline-block; padding: 0.4rem 1.2rem;
+            border-radius: 50px; font-weight: 700; font-size: 0.8rem;
+            margin-bottom: 1rem;
         }
+        .health-advice { color: var(--ink-secondary); font-size: 0.9rem; }
         .aqi-detail-row {
             display: flex; justify-content: center; gap: 2rem;
             margin-top: 1.5rem; padding-top: 1.5rem;
-            border-top: 1px solid #edf2f7;
+            border-top: 1px solid var(--border);
         }
         .aqi-detail-item { text-align: center; }
-        .aqi-detail-item .label { font-size: 0.7rem; text-transform: uppercase; color: #888; font-weight: 700; }
-        .aqi-detail-item .val { font-size: 1.4rem; font-weight: 700; color: var(--text-dark); }
-        .aqi-detail-item .unit { font-size: 0.75rem; color: #aaa; }
+        .aqi-detail-item .label {
+            font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.08em;
+            color: var(--ink-muted); font-weight: 700;
+        }
+        .aqi-detail-item .val {
+            font-size: 1.4rem; font-weight: 700; color: var(--ink);
+            letter-spacing: -0.02em; font-variant-numeric: tabular-nums;
+        }
+        .aqi-detail-item .unit { font-size: 0.7rem; color: var(--ink-faint); }
 
         /* Stats Overview */
-        .overview-section {
-            padding: 3rem 5%; max-width: 1400px; margin: 0 auto;
+        .overview-section { padding: 3rem 5%; max-width: 1400px; margin: 0 auto; }
+        .overview-section h2 {
+            font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em;
+            display: flex; align-items: center; gap: 8px;
         }
+        .overview-section h2 i { color: var(--primary); }
+        .overview-subtitle { color: var(--ink-muted); margin-top: 0.4rem; font-size: 0.9rem; }
         .overview-grid {
             display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem; margin-top: 2rem;
+            gap: 1rem; margin-top: 1.5rem;
         }
         .overview-card {
-            background: white; padding: 1.5rem; border-radius: 16px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
-            border-left: 4px solid var(--primary);
+            background: var(--surface-raised); padding: 1.25rem; border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--primary);
             transition: var(--transition);
         }
-        .overview-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
-        .overview-card .label { font-size: 0.75rem; text-transform: uppercase; color: #888; font-weight: 700; letter-spacing: 0.5px; }
-        .overview-card .value { font-size: 2rem; font-weight: 700; margin: 0.5rem 0 0.2rem; }
-        .overview-card .sub { font-size: 0.8rem; color: #999; }
+        .overview-card:hover { border-left-color: var(--ink); }
+        .overview-card .label {
+            font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.08em;
+            color: var(--ink-muted); font-weight: 700;
+        }
+        .overview-card .value {
+            font-size: 1.8rem; font-weight: 700; margin: 0.4rem 0 0.15rem;
+            letter-spacing: -0.03em; font-variant-numeric: tabular-nums;
+        }
+        .overview-card .sub { font-size: 0.75rem; color: var(--ink-faint); }
 
         /* Methodology */
         .methodology {
-            background: white; padding: 5rem 5%; margin-top: 3rem;
+            background: var(--surface); padding: 4rem 5%; margin-top: 2rem;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
         }
+        .methodology h2 {
+            text-align: center; font-size: 1.8rem; font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+        .methodology h2 i { color: var(--primary); }
         .method-grid {
-            max-width: 1200px; margin: 3rem auto 0;
-            display: grid; grid-template-columns: 300px 1fr;
-            gap: 4rem; align-items: center;
+            max-width: 1100px; margin: 2.5rem auto 0;
+            display: grid; grid-template-columns: 240px 1fr;
+            gap: 3rem; align-items: center;
         }
         .sensor-icon-wrapper {
-            background: var(--bg-body); padding: 3rem; border-radius: 50%;
+            background: var(--canvas); padding: 2.5rem; border-radius: 50%;
             display: flex; justify-content: center; align-items: center;
-            font-size: 6rem; color: var(--primary);
+            font-size: 5rem; color: var(--primary);
+            border: 1px solid var(--border);
+            width: 240px; height: 240px;
         }
-        .method-tags { display: flex; gap: 12px; margin-top: 1.5rem; flex-wrap: wrap; }
+        .method-info h3 {
+            font-size: 1.2rem; margin-bottom: 0.75rem; font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+        .method-info p { font-size: 0.95rem; color: var(--ink-secondary); line-height: 1.7; }
+        .method-tags { display: flex; gap: 0.6rem; margin-top: 1.25rem; flex-wrap: wrap; }
         .method-tag {
-            background: var(--bg-body); padding: 0.8rem 1.2rem; border-radius: 10px;
-            font-size: 0.85rem;
+            background: var(--canvas); padding: 0.65rem 1rem; border-radius: var(--radius-sm);
+            font-size: 0.8rem; border: 1px solid var(--border);
         }
-        .method-tag strong { display: block; color: var(--text-dark); }
-        .method-tag small { color: #888; }
+        .method-tag strong { display: block; color: var(--ink); font-size: 0.8rem; }
+        .method-tag small { color: var(--ink-muted); font-size: 0.7rem; }
 
         /* Footer */
         .footer {
-            text-align: center; padding: 3rem 5%;
-            background: var(--text-dark); color: white; margin-top: 4rem;
+            text-align: center; padding: 2.5rem 5%;
+            background: var(--ink); color: var(--canvas);
         }
-        .footer p { opacity: 0.8; margin-top: 0.5rem; font-size: 0.9rem; }
+        .footer strong { font-size: 1rem; letter-spacing: -0.01em; }
+        .footer p { opacity: 0.6; margin-top: 0.3rem; font-size: 0.8rem; }
 
         @media (max-width: 768px) {
             .nav-links {
                 position: fixed; right: -100%; top: 0; height: 100vh; width: 250px;
-                background: white; flex-direction: column; padding: 5rem 2rem;
-                transition: 0.4s ease; box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+                background: var(--surface); flex-direction: column; padding: 5rem 2rem;
+                transition: 0.4s ease; border-left: 1px solid var(--border);
             }
             .nav-links.active { right: 0; }
             .menu-toggle { display: block; }
-            .hero { grid-template-columns: 1fr; text-align: center; }
-            .hero-content .cta-row { justify-content: center; }
+            .hero { grid-template-columns: 1fr; text-align: center; padding: 2.5rem 5%; }
+            .hero-content p { max-width: 100%; }
+            .cta-row { justify-content: center; }
             .method-grid { grid-template-columns: 1fr; text-align: center; }
-            .sensor-icon-wrapper { margin: 0 auto; width: 200px; height: 200px; font-size: 4rem; }
+            .sensor-icon-wrapper { margin: 0 auto; width: 180px; height: 180px; font-size: 4rem; }
             .method-tags { justify-content: center; }
             .aqi-detail-row { flex-wrap: wrap; gap: 1rem; }
+            .hero-content h1 { font-size: 2.2rem; }
         }
     </style>
 </head>
@@ -152,7 +247,7 @@
     <nav class="navbar">
         <a href="index.html" class="nav-logo"><i class="ph-fill ph-wind"></i> Respira BV</a>
         <ul class="nav-links" id="navLinks">
-            <li><a href="index.html" class="active"><i class="ph ph-house"></i> Início</a></li>
+            <li><a href="index.html" class="active"><i class="ph ph-house"></i> Inicio</a></li>
             <li><a href="mapa.html"><i class="ph ph-map-trifold"></i> Mapa</a></li>
             <li><a href="dashboard.html"><i class="ph ph-chart-line-up"></i> Dashboard</a></li>
         </ul>
@@ -161,33 +256,33 @@
 
     <main class="hero">
         <div class="hero-content fade-in stagger-1">
-            <h1 style="font-size: 3rem; margin-bottom: 1.5rem;">Como está o ar em <span style="color: var(--primary);">Boa Vista</span> hoje?</h1>
-            <p style="font-size: 1.15rem; color: #666; margin-bottom: 2rem;">Monitoramento contínuo da poluição atmosférica com dados reais do sensor PurpleAir PA-II-SD, protegendo a saúde da comunidade roraimense.</p>
-            <div class="cta-row" style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                <a href="mapa.html" style="background: var(--primary); color: white; padding: 1rem 2rem; border-radius: 12px; text-decoration: none; font-weight: 600; transition: var(--transition);">
+            <h1>Como esta o ar em <span>Boa Vista</span> hoje?</h1>
+            <p>Monitoramento continuo da poluicao atmosferica com dados reais do sensor PurpleAir PA-II-SD, protegendo a saude da comunidade roraimense.</p>
+            <div class="cta-row">
+                <a href="mapa.html" class="cta-primary">
                     <i class="ph ph-map-trifold"></i> Ver Mapa Interativo
                 </a>
-                <a href="dashboard.html" style="background: white; color: var(--primary); border: 2px solid var(--primary); padding: 1rem 2rem; border-radius: 12px; text-decoration: none; font-weight: 600; transition: var(--transition);">
+                <a href="dashboard.html" class="cta-secondary">
                     <i class="ph ph-chart-line-up"></i> Explorar Dashboard
                 </a>
             </div>
         </div>
 
         <div class="aqi-card-main fade-in stagger-2" id="aqiContainer">
-            <p style="text-transform: uppercase; letter-spacing: 2px; font-weight: 700; color: #888; font-size: 0.8rem;">Última Leitura Disponível</p>
+            <p class="aqi-card-label">Ultima Leitura Disponivel</p>
             <div class="aqi-value" id="aqiValue">--</div>
             <div class="health-badge" id="aqiStatus">Carregando...</div>
-            <p id="healthAdvice" style="color: #555;">Processando dados do sensor...</p>
+            <p class="health-advice" id="healthAdvice">Processando dados do sensor...</p>
             <div class="aqi-detail-row" id="aqiDetails">
                 <div class="aqi-detail-item">
                     <div class="label">PM2.5</div>
                     <div class="val" id="detailPm25">--</div>
-                    <div class="unit">µg/m³</div>
+                    <div class="unit">ug/m3</div>
                 </div>
                 <div class="aqi-detail-item">
                     <div class="label">PM10</div>
                     <div class="val" id="detailPm10">--</div>
-                    <div class="unit">µg/m³</div>
+                    <div class="unit">ug/m3</div>
                 </div>
                 <div class="aqi-detail-item">
                     <div class="label">Temp</div>
@@ -204,28 +299,26 @@
     </main>
 
     <section class="overview-section fade-in stagger-3">
-        <h2 style="font-size: 1.8rem;"><i class="ph ph-chart-bar"></i> Panorama do Dataset (2024–2025)</h2>
-        <p id="overviewSubtitle" style="color: #666; margin-top: 0.5rem;">Carregando dados de monitoramento contínuo...</p>
-        <div class="overview-grid" id="overviewGrid">
-            <!-- Populated by JS -->
-        </div>
+        <h2><i class="ph ph-chart-bar"></i> Panorama do Dataset (2024-2025)</h2>
+        <p class="overview-subtitle" id="overviewSubtitle">Carregando dados de monitoramento continuo...</p>
+        <div class="overview-grid" id="overviewGrid"></div>
     </section>
 
     <section class="methodology fade-in stagger-4">
-        <h2 style="text-align: center; font-size: 2.2rem;"><i class="ph ph-flask"></i> Metodologia</h2>
+        <h2><i class="ph ph-flask"></i> Metodologia</h2>
         <div class="method-grid">
             <div class="sensor-icon-wrapper">
                 <i class="ph ph-cpu"></i>
             </div>
-            <div>
-                <h3 style="font-size: 1.4rem; margin-bottom: 1rem;">Tecnologia de Alta Precisão</h3>
-                <p style="font-size: 1.05rem; color: #555;">
-                    Utilizamos o sensor <strong>PurpleAir PA-II-SD</strong> (ID: 56843), um dispositivo de monitoramento a laser que mede partículas finas (PM2.5 e PM10) em intervalos de 30 minutos. Este projeto é fruto do Trabalho de Conclusão de Curso de <strong>Cedric Williams</strong>, na Especialização em Computação Aplicada da <strong>UFRR</strong>.
+            <div class="method-info">
+                <h3>Tecnologia de Alta Precisao</h3>
+                <p>
+                    Utilizamos o sensor <strong>PurpleAir PA-II-SD</strong> (ID: 56843), um dispositivo de monitoramento a laser que mede particulas finas (PM2.5 e PM10) em intervalos de 30 minutos. Este projeto e fruto do Trabalho de Conclusao de Curso de <strong>Cedric Williams</strong>, na Especializacao em Computacao Aplicada da <strong>UFRR</strong>.
                 </p>
                 <div class="method-tags">
-                    <div class="method-tag"><strong>PM2.5 &amp; PM10</strong><small>Partículas em Suspensão</small></div>
-                    <div class="method-tag"><strong>Temperatura &amp; Umidade</strong><small>Variáveis Ambientais</small></div>
-                    <div class="method-tag"><strong>Sazonalidade</strong><small>Foco em Queimadas (Fev–Abr)</small></div>
+                    <div class="method-tag"><strong>PM2.5 &amp; PM10</strong><small>Particulas em Suspensao</small></div>
+                    <div class="method-tag"><strong>Temperatura &amp; Umidade</strong><small>Variaveis Ambientais</small></div>
+                    <div class="method-tag"><strong>Sazonalidade</strong><small>Foco em Queimadas (Fev-Abr)</small></div>
                     <div class="method-tag"><strong>34.791 Registros</strong><small>30-Minute Average</small></div>
                 </div>
             </div>
@@ -233,9 +326,9 @@
     </section>
 
     <footer class="footer">
-        <strong style="font-size: 1.1rem;">Respira Boa Vista</strong>
-        <p>&copy; 2024–2025 | UFRR — Cedric Williams</p>
-        <p>TCC — Especialização em Computação Aplicada na Indústria 4.0</p>
+        <strong>Respira Boa Vista</strong>
+        <p>&copy; 2024-2025 | UFRR — Cedric Williams</p>
+        <p>TCC — Especializacao em Computacao Aplicada na Industria 4.0</p>
     </footer>
 
     <script>
@@ -251,15 +344,14 @@
     }
 
     function getAQIInfo(aqi) {
-        if (aqi <= 50) return { label: 'Boa', color: '#00e400', advice: 'O ar está ótimo para atividades ao ar livre!', text: '#000' };
-        if (aqi <= 100) return { label: 'Moderada', color: '#ffff00', advice: 'Pessoas sensíveis devem reduzir esforço pesado ao ar livre.', text: '#000' };
-        if (aqi <= 150) return { label: 'Prejudicial (Grupos Sensíveis)', color: '#ff7e00', advice: 'Evite exercícios prolongados ao ar livre.', text: '#fff' };
-        if (aqi <= 200) return { label: 'Prejudicial', color: '#ff0000', advice: 'Evite atividades ao ar livre. Use máscara se necessário.', text: '#fff' };
-        if (aqi <= 300) return { label: 'Muito Prejudicial', color: '#8f3f97', advice: 'Permaneça em ambientes fechados. Risco grave à saúde.', text: '#fff' };
-        return { label: 'Perigosa', color: '#7e0023', advice: 'Emergência de saúde! Evite qualquer exposição ao ar externo.', text: '#fff' };
+        if (aqi <= 50) return { label: 'Boa', color: '#4A9E5C', advice: 'O ar esta otimo para atividades ao ar livre!', text: '#fff' };
+        if (aqi <= 100) return { label: 'Moderada', color: '#D4A843', advice: 'Pessoas sensiveis devem reduzir esforco pesado ao ar livre.', text: '#fff' };
+        if (aqi <= 150) return { label: 'Prejudicial (Grupos Sensiveis)', color: '#D4793A', advice: 'Evite exercicios prolongados ao ar livre.', text: '#fff' };
+        if (aqi <= 200) return { label: 'Prejudicial', color: '#C4392F', advice: 'Evite atividades ao ar livre. Use mascara se necessario.', text: '#fff' };
+        if (aqi <= 300) return { label: 'Muito Prejudicial', color: '#7B3580', advice: 'Permaneca em ambientes fechados. Risco grave a saude.', text: '#fff' };
+        return { label: 'Perigosa', color: '#6B1D2A', advice: 'Emergencia de saude! Evite qualquer exposicao ao ar externo.', text: '#fff' };
     }
 
-    // Load CSV and aggregate to daily
     async function loadData() {
         try {
             const raw = await d3.csv('/respira-boa-vista/dataset/processed/dataset_qualidade_ar_boavista_2024-2025_complete.csv', d => ({
@@ -273,7 +365,6 @@
                 year: +d.year
             }));
 
-            // Aggregate to daily averages
             const grouped = d3.group(raw, d => d.date);
             const DATA = Array.from(grouped, ([date, records]) => ({
                 d: date,
@@ -288,7 +379,7 @@
         } catch(e) {
             console.error('Erro ao carregar dados:', e);
             document.getElementById('aqiStatus').textContent = 'Erro ao carregar dados';
-            document.getElementById('healthAdvice').textContent = 'Verifique se o servidor HTTP local está rodando (python3 -m http.server 8000)';
+            document.getElementById('healthAdvice').textContent = 'Verifique se o servidor HTTP local esta rodando (python3 -m http.server 8000)';
         }
     }
 
@@ -297,8 +388,6 @@
         const aqi = calculateAQI(latest.p);
         const info = getAQIInfo(aqi);
 
-        const container = document.getElementById('aqiContainer');
-        container.style.borderTopColor = info.color;
         document.getElementById('aqiValue').textContent = aqi;
         document.getElementById('aqiValue').style.color = info.color;
         const statusEl = document.getElementById('aqiStatus');
@@ -312,7 +401,6 @@
         document.getElementById('detailTemp').textContent = latest.c.toFixed(1);
         document.getElementById('detailHum').textContent = latest.h.toFixed(0);
 
-        // Overview stats
         const pm25Vals = DATA.map(d => d.p);
         const pm25Max = DATA.map(d => d.px);
         const avgPm25 = pm25Vals.reduce((a,b) => a+b, 0) / pm25Vals.length;
@@ -322,17 +410,16 @@
         const avgTemp = DATA.map(d => d.c).reduce((a,b) => a+b, 0) / DATA.length;
         const avgHum = DATA.map(d => d.h).reduce((a,b) => a+b, 0) / DATA.length;
 
-        // Update subtitle with actual record count
         document.getElementById('overviewSubtitle').textContent =
-            `Resumo de ${DATA.length} dias de monitoramento contínuo — registros a cada 30 minutos.`;
+            `Resumo de ${DATA.length} dias de monitoramento continuo — registros a cada 30 minutos.`;
 
         const cards = [
-            { label: 'PM2.5 Médio Geral', value: avgPm25.toFixed(1), sub: 'µg/m³ (limite OMS: 15)', color: avgPm25 > 15 ? 'var(--aqi-sensivel)' : 'var(--aqi-boa)' },
-            { label: 'Pico Registrado', value: peakPm25.toFixed(1), sub: 'µg/m³ (30-min avg)', color: 'var(--aqi-prejudicial)' },
-            { label: 'Dias Acima OMS (>15)', value: daysAboveWHO, sub: `de ${DATA.length} dias monitorados`, color: '#ff7e00' },
-            { label: 'Dias Acima EPA (>35.4)', value: daysAboveEPA, sub: 'nível prejudicial a sensíveis', color: '#ff0000' },
-            { label: 'Temperatura Média', value: avgTemp.toFixed(1) + '°C', sub: 'média diária (2 anos)', color: 'var(--primary)' },
-            { label: 'Umidade Média', value: avgHum.toFixed(0) + '%', sub: 'média diária (2 anos)', color: 'var(--primary)' },
+            { label: 'PM2.5 Medio Geral', value: avgPm25.toFixed(1), sub: 'ug/m3 (limite OMS: 15)', color: avgPm25 > 15 ? 'var(--aqi-sensivel)' : 'var(--aqi-boa)' },
+            { label: 'Pico Registrado', value: peakPm25.toFixed(1), sub: 'ug/m3 (30-min avg)', color: 'var(--aqi-prejudicial)' },
+            { label: 'Dias Acima OMS (>15)', value: daysAboveWHO, sub: `de ${DATA.length} dias monitorados`, color: 'var(--aqi-sensivel)' },
+            { label: 'Dias Acima EPA (>35.4)', value: daysAboveEPA, sub: 'nivel prejudicial a sensiveis', color: 'var(--aqi-prejudicial)' },
+            { label: 'Temperatura Media', value: avgTemp.toFixed(1) + '°C', sub: 'media diaria (2 anos)', color: 'var(--primary)' },
+            { label: 'Umidade Media', value: avgHum.toFixed(0) + '%', sub: 'media diaria (2 anos)', color: 'var(--primary)' },
         ];
 
         document.getElementById('overviewGrid').innerHTML = cards.map(c => `
