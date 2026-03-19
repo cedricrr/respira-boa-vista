@@ -9,8 +9,8 @@ Respira Boa Vista is a TCC (undergraduate thesis) project for air quality monito
 ```
 respira-boa-vista/
 ├── web/                   # Frontend source (3 HTML pages)
-│   ├── index.html         # Home/Landing — hero AQI card + overview stats
-│   ├── dashboard.html     # Dashboard — 3 D3.js charts + filters (year/month/day)
+│   ├── index.html         # Home/Landing — hero SVG illustration + AQI card (with last reading date) + overview stats
+│   ├── dashboard.html     # Dashboard — 3 D3.js charts (IQA, PM2.5, Temp/Humidity) + filters (year/month/day)
 │   └── mapa.html          # Map — Leaflet interactive map + sidebar stats
 ├── docs/                  # GitHub Pages deployment (copy of web/ + dataset)
 │   ├── index.html         # Deployed home page

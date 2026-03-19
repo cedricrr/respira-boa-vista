@@ -65,12 +65,15 @@ Onde:
 ### RF-04: Portal Principal (index.html)
 - DEVE exibir a qualidade do ar atual com valor AQI e cor correspondente
 - DEVE exibir valores de PM2.5, PM10, temperatura e umidade
+- DEVE exibir a data da ultima leitura disponivel no card AQI
 - DEVE apresentar recomendacoes de saude baseadas na categoria AQI atual
+- DEVE conter ilustracao SVG inline tematica na secao hero (skyline de cidade, particulas PM2.5, sensor e vegetacao) com animacoes de particulas flutuantes e vento
 - DEVE conter navegacao para as paginas de mapa e dashboard
-- DEVE ser responsivo (mobile, tablet, desktop)
+- DEVE ser responsivo (mobile, tablet, desktop); a ilustracao SVG DEVE ser ocultada em telas < 768px
 
 ### RF-05: Dashboard de Dados (dashboard.html)
 - DEVE exibir graficos interativos de series temporais usando D3.js v7
+- Os graficos DEVEM ser apresentados na seguinte ordem: (1) Indice de Qualidade do Ar (IQA), (2) Concentracao de PM2.5, (3) Temperatura e Umidade
 - DEVE conter cards de estatisticas: PM2.5 medio, PM2.5 maximo, AQI medio, total de registros
 - DEVE permitir filtragem por: ano, mes e dia
 - DEVE atualizar graficos e estatisticas dinamicamente ao alterar filtros
@@ -201,9 +204,11 @@ timestamp_utc,pm25_ugm3,pm10_ugm3,temperature_celsius,humidity_percent,aqi,aqi_c
 │  │ index.html  │  │  D3.js      │  │  Leaflet       │  │
 │  │             │  │             │  │                │  │
 │  │ - AQI atual │  │ - Graficos  │  │ - Mapa OSM    │  │
-│  │ - Metricas  │  │ - Cards     │  │ - Marcadores  │  │
-│  │ - Saude     │  │ - Filtros   │  │ - Filtros     │  │
-│  │ - Navegacao │  │   (A/M/D)   │  │ - Estatistic. │  │
+│  │ - Data leit.│  │   IQA/PM2.5 │  │ - Marcadores  │  │
+│  │ - SVG hero  │  │   Temp/Umid │  │ - Filtros     │  │
+│  │ - Metricas  │  │ - Cards     │  │ - Estatistic. │  │
+│  │ - Saude     │  │ - Filtros   │  │               │  │
+│  │ - Navegacao │  │   (A/M/D)   │  │               │  │
 │  └─────────────┘  └─────────────┘  └────────────────┘  │
 │                                                         │
 │  ┌──────────────────────────────────────────────────┐   │
