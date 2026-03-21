@@ -150,7 +150,7 @@ Aplicacao HTML/CSS/JS estatica para consulta interativa dos dados, sem necessida
 
 ### Acesso Online
 
-A aplicacao esta disponivel em: **https://cedricrr.github.io/respira-boa-vista/docs/index.html**
+A aplicacao esta disponivel em: **https://cedricrr.github.io/respira-boa-vista/index.html**
 
 O deploy e feito automaticamente via GitHub Actions a cada push na branch `main`.
 

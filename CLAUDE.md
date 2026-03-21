@@ -66,7 +66,7 @@ A local HTTP server is required due to CORS restrictions on `d3.csv()` file load
 
 - GitHub Pages serves from root (`path: '.'`) via GitHub Actions (`.github/workflows/deploy-pages.yml`)
 - The `docs/` folder contains a self-contained copy of the app with its own `dataset/processed/` folder
-- URL: `https://cedricrr.github.io/respira-boa-vista/docs/index.html`
+- URL: `https://cedricrr.github.io/respira-boa-vista/index.html`
 
 ### CSV columns
 
@@ -166,7 +166,7 @@ Um servidor HTTP local e necessario devido a restricoes de CORS no carregamento 
 
 - GitHub Pages serve a partir da raiz (`path: '.'`) via GitHub Actions (`.github/workflows/deploy-pages.yml`)
 - A pasta `docs/` contem uma copia autocontida da aplicacao com sua propria pasta `dataset/processed/`
-- URL: `https://cedricrr.github.io/respira-boa-vista/docs/index.html`
+- URL: `https://cedricrr.github.io/respira-boa-vista/index.html`
 
 ### Colunas do CSV
 
