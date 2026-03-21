@@ -201,7 +201,7 @@ PurpleAir API  -->  Download CSV bruto  -->  Processamento  -->  Datasets CSV  -
 
 Se utilizar este dataset ou codigo, cite:
 
-> WILLIAMS FILHO, Cedric Carol Patrician. **Expansao e Democratizacao do Monitoramento de Qualidade do Ar em Boa Vista/RR: Dataset Aberto e Sistema de Visualizacao Comunitaria.** 2026. Monografia (Especializacao em Computacao Aplicada) -- UFRR, Boa Vista, 2026.
+> WILLIAMS FILHO, Cedric Carol Patrician. **Monitoramento da Qualidade do Ar em Boa Vista/RR com Sensores IoT na Perspectiva da Indústria 4.0: Dataset Aberto e Visualização Comunitária.** 2026. Monografia (Especializacao em Computacao Aplicada) -- UFRR, Boa Vista, 2026.
 
 Veja tambem o arquivo [`CITATION.cff`](./CITATION.cff) para citacao estruturada.
 
