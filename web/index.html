@@ -125,6 +125,19 @@
             text-transform: uppercase; letter-spacing: 0.12em; font-weight: 700;
             color: var(--ink-muted); font-size: 0.7rem;
         }
+        .aqi-date-alert {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: var(--aqi-moderada); color: #fff;
+            padding: 0.4rem 1rem; border-radius: 50px;
+            font-size: 0.75rem; font-weight: 700; letter-spacing: 0.02em;
+            margin-top: 0.6rem;
+            animation: pulse-alert 2s ease-in-out infinite;
+        }
+        .aqi-date-alert i { font-size: 1rem; }
+        @keyframes pulse-alert {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(212, 168, 67, 0.4); }
+            50% { box-shadow: 0 0 0 8px rgba(212, 168, 67, 0); }
+        }
         .aqi-value {
             font-size: 5rem; font-weight: 800; line-height: 1;
             margin: 0.75rem 0; letter-spacing: -0.04em;
@@ -368,6 +381,10 @@
         </div>
         <div class="aqi-card-main" id="aqiContainer">
             <p class="aqi-card-label">Ultima Leitura Disponivel</p>
+            <div class="aqi-date-alert" id="aqiDateAlert" style="display:none">
+                <i class="ph ph-calendar-check"></i>
+                <span id="aqiDateText"></span>
+            </div>
             <div class="aqi-value" id="aqiValue">--</div>
             <div class="health-badge" id="aqiStatus">Carregando...</div>
             <p class="health-advice" id="healthAdvice">Processando dados do sensor...</p>
@@ -502,7 +519,9 @@
         document.getElementById('detailHum').textContent = latest.h.toFixed(0);
 
         const [y, m, d] = latest.d.split('-');
-        document.querySelector('.aqi-card-label').textContent = `Ultima Leitura Disponivel — ${d}/${m}/${y}`;
+        const alertEl = document.getElementById('aqiDateAlert');
+        document.getElementById('aqiDateText').textContent = `${d}/${m}/${y}`;
+        alertEl.style.display = '';
 
         const pm25Vals = DATA.map(d => d.p);
         const pm25Max = DATA.map(d => d.px);
