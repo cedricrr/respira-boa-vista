@@ -82,11 +82,13 @@ Dados coletados via sensor [PurpleAir PA-II-SD](https://www.purpleair.com/) (Sen
 
 ### Arquivos de Dados
 
-| Arquivo | Descricao | Registros |
-|---------|-----------|-----------|
-| `dataset_qualidade_ar_boavista_2024-2025_complete.csv` | Dados completos, resolucao 30 min | 34.791 |
-| `dataset_qualidade_ar_boavista_2024-2025_daily.csv` | Agregados diarios (media/min/max) | 730 |
-| `dataset_qualidade_ar_boavista_2024-2025_monthly.csv` | Agregados mensais (media/min/max/desvio) | 24 |
+| Arquivo | Formato | Descricao | Registros |
+|---------|---------|-----------|-----------|
+| `dataset_qualidade_ar_boavista_2024-2025_complete.csv` | CSV | Dados completos, resolucao 30 min | 34.791 |
+| `dataset_qualidade_ar_boavista_2024-2025_daily.csv` | CSV | Agregados diarios (media/min/max) | 730 |
+| `dataset_qualidade_ar_boavista_2024-2025_monthly.csv` | CSV | Agregados mensais (media/min/max/desvio) | 24 |
+| `sensor_qualidade_ar_boavista.geojson` | GeoJSON | Localizacao do sensor, metadados e estatisticas | 1 feature |
+| `dataset_metadata_v2.json` | JSON | Metadados do dataset (cobertura, parametros, estatisticas) | -- |
 
 ### Colunas do Dataset Completo
 
@@ -113,6 +115,26 @@ Dados coletados via sensor [PurpleAir PA-II-SD](https://www.purpleair.com/) (Sen
 | Eventos extremos (PM2.5 > 100) | 246 | 0 | -100% |
 
 Acesse a documentacao detalhada dos dados em [`/dataset/processed/README_v2.md`](./dataset/processed/README_v2.md).
+
+### Formatos Disponíveis
+
+O dataset e disponibilizado em tres formatos:
+
+| Formato | Descricao | Uso principal |
+|---------|-----------|---------------|
+| **CSV** | Dados tabulares de series temporais (completo, diario, mensal) | Analise em Python/R/Excel, carregamento no frontend via `d3.csv()` |
+| **JSON** | Metadados estruturados do dataset e do sensor | Integracao programatica, documentacao maquina-legivel |
+| **GeoJSON** | Localizacao geoespacial do sensor com propriedades (metadados e estatisticas) | Integracao com SIG (QGIS, ArcGIS), mapas web (Leaflet, Mapbox), portais de dados abertos |
+
+### Processo de Geracao do GeoJSON
+
+O arquivo `sensor_qualidade_ar_boavista.geojson` foi gerado a partir dos metadados existentes no projeto (`sensors.json` e `dataset_metadata_v2.json`) seguindo o padrao [RFC 7946](https://tools.ietf.org/html/rfc7946):
+
+1. **Estrutura**: `FeatureCollection` com uma `Feature` do tipo `Point`
+2. **Coordenadas**: Extraidas de `sensors.json` — longitude `-60.662812`, latitude `2.828993` (formato `[lon, lat]` conforme especificacao GeoJSON)
+3. **CRS**: WGS 84 (CRS:84), sistema de referencia padrao para dados GPS e PurpleAir
+4. **Propriedades**: Consolidacao dos dados de ambos os JSONs — identificacao do sensor, localizacao detalhada, cobertura temporal, estatisticas agregadas (PM2.5, PM10, temperatura, umidade), evento extremo e referencias ao projeto
+5. **Validacao**: Estrutura compativel com ferramentas SIG (QGIS, GeoServer), bibliotecas JavaScript (Leaflet, Turf.js) e portais de dados abertos (CKAN, GeoNode)
 
 ---
 

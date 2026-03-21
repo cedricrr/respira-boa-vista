@@ -35,7 +35,8 @@ respira-boa-vista/
 - **Frontend**: HTML5, CSS3, vanilla JavaScript (ES6+) — no build tools or frameworks
 - **Visualization**: D3.js v7 (charts), Leaflet v1.9.4 (map), OpenStreetMap (tiles)
 - **UI**: Google Fonts (Inter), Phosphor Icons, CSS Variables
-- **Data**: CSV files loaded client-side via `d3.csv()`, aggregated to daily averages with `d3.group()`
+- **Data formats**: CSV (time series), JSON (metadata), GeoJSON (geospatial sensor data — RFC 7946)
+- **Data loading**: CSV files loaded client-side via `d3.csv()`, aggregated to daily averages with `d3.group()`
 - **Data source**: PurpleAir API v1 (sensor 56843, 30-min intervals, 34,791 records)
 - **Data processing (offline)**: Python 3.8+ with `requests` (API download), `pandas` (DataFrame manipulation, F→C conversion, AQI calculation, temporal aggregation), `csv` (stdlib). Scripts not included in the repo — only the resulting CSVs are committed.
 
@@ -135,7 +136,8 @@ respira-boa-vista/
 - **Frontend**: HTML5, CSS3, JavaScript vanilla (ES6+) — sem build tools ou frameworks
 - **Visualizacao**: D3.js v7 (graficos), Leaflet v1.9.4 (mapa), OpenStreetMap (tiles)
 - **UI**: Google Fonts (Inter), Phosphor Icons, CSS Variables
-- **Dados**: Arquivos CSV carregados no cliente via `d3.csv()`, agregados em medias diarias com `d3.group()`
+- **Formatos de dados**: CSV (series temporais), JSON (metadados), GeoJSON (dados geoespaciais do sensor — RFC 7946)
+- **Carregamento de dados**: Arquivos CSV carregados no cliente via `d3.csv()`, agregados em medias diarias com `d3.group()`
 - **Fonte de dados**: API PurpleAir v1 (sensor 56843, intervalos de 30 min, 34.791 registros)
 - **Processamento de dados (offline)**: Python 3.8+ com `requests` (download da API), `pandas` (manipulacao de DataFrames, conversao F para C, calculo AQI, agregacao temporal), `csv` (stdlib). Scripts nao incluidos no repositorio — apenas os CSVs resultantes sao commitados.
 

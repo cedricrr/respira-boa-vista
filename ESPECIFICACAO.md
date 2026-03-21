@@ -105,7 +105,8 @@ Onde:
 - DEVE funcionar sem autenticacao (acesso publico)
 
 ### RNF-04: Dados
-- Os dados DEVEM ser disponibilizados em formato CSV (UTF-8)
+- Os dados DEVEM ser disponibilizados em tres formatos: CSV (series temporais), JSON (metadados) e GeoJSON (dados geoespaciais)
+- O arquivo GeoJSON DEVE seguir a especificacao RFC 7946 com CRS WGS 84
 - Os metadados DEVEM seguir formato JSON estruturado
 - Os timestamps DEVEM estar em UTC (ISO 8601)
 - A taxa de cobertura DEVE ser superior a 95%

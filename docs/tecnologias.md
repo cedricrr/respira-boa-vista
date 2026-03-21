@@ -37,8 +37,9 @@
 
 ## Armazenamento de Dados
 
-- **CSV** — formato principal (34.791 registros no complete, 730 no daily, 24 no monthly)
+- **CSV** — formato principal de séries temporais (34.791 registros no complete, 730 no daily, 24 no monthly)
 - **JSON** — metadados do dataset e configuração do sensor (`dataset_metadata_v2.json`, `sensors.json`)
+- **GeoJSON** — dados geoespaciais do sensor com localização, metadados e estatísticas (`sensor_qualidade_ar_boavista.geojson`) — RFC 7946, CRS WGS 84
 
 ## Padrões e Referências
 

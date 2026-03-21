@@ -1,0 +1,89 @@
+{
+  "type": "FeatureCollection",
+  "name": "Respira Boa Vista - Sensor de Qualidade do Ar",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-60.662812, 2.828993]
+      },
+      "properties": {
+        "sensor_id": 56843,
+        "sensor_name": "PurpleAir PA-II-SD - Boa Vista/RR",
+        "sensor_model": "PurpleAir PA-II-SD",
+        "detector": "Plantower PMS5003",
+        "measurement_principle": "Laser scattering",
+        "status": "active",
+        "location": {
+          "city": "Boa Vista",
+          "state": "Roraima",
+          "state_code": "RR",
+          "country": "Brazil",
+          "country_code": "BR",
+          "elevation_m": 85,
+          "timezone": "America/Boa_Vista",
+          "utc_offset": "-04:00",
+          "climate_zone": "Tropical savanna (Aw - Koppen)"
+        },
+        "temporal_coverage": {
+          "start": "2024-01-01T00:00:00Z",
+          "end": "2025-12-30T23:30:00Z",
+          "duration_days": 730,
+          "resolution": "30 minutes",
+          "total_records": 34791,
+          "completeness_percent": 99.29
+        },
+        "statistics": {
+          "pm25": {
+            "unit": "ug/m3",
+            "mean": 9.32,
+            "median": 4.8,
+            "max": 373.2
+          },
+          "pm10": {
+            "unit": "ug/m3",
+            "mean": 10.08,
+            "median": 5.2,
+            "max": 397.2
+          },
+          "temperature": {
+            "unit": "Celsius",
+            "mean": 34.1
+          },
+          "humidity": {
+            "unit": "%",
+            "mean": 49.5
+          },
+          "aqi": {
+            "who_guideline_exceedance_percent": 48.0,
+            "pm25_reduction_2024_to_2025_percent": -63.1
+          }
+        },
+        "extreme_event": {
+          "date": "2024-03-24/25",
+          "pm25_max_ug_m3": 373.0,
+          "duration_hours": 12,
+          "aqi_category": "Hazardous (401-500)"
+        },
+        "data_files": {
+          "complete": "dataset_qualidade_ar_boavista_2024-2025_complete.csv",
+          "daily": "dataset_qualidade_ar_boavista_2024-2025_daily.csv",
+          "monthly": "dataset_qualidade_ar_boavista_2024-2025_monthly.csv"
+        },
+        "references": {
+          "project_url": "https://cedricrr.github.io/respira-boa-vista/index.html",
+          "repository": "https://github.com/cedricrr/respira-boa-vista",
+          "purpleair_map": "https://map.purpleair.com/air-quality-standards-us-epa-aqi?opt=%2F1%2Flp%2Fa10%2Fp604800%2FcC0#18.19/2.828993/-60.662812",
+          "license": "CC BY 4.0"
+        }
+      }
+    }
+  ]
+}
