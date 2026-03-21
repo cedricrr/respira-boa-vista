@@ -195,6 +195,20 @@ PurpleAir API  -->  Download CSV bruto  -->  Processamento  -->  Datasets CSV  -
 3. **Processamento**: Conversao de temperatura (F para C), calculo do AQI (formula US EPA), agregacao temporal
 4. **Publicacao**: Dados carregados via `d3.csv()` no frontend a partir de arquivos CSV
 
+### Processamento com Python (offline)
+
+O processamento dos dados brutos foi realizado com **Python 3.8+** em scripts executados offline (nao incluidos no repositorio). As bibliotecas utilizadas foram:
+
+| Biblioteca | Uso |
+|------------|-----|
+| `requests` | Chamadas HTTP a API REST do PurpleAir para download dos CSVs brutos |
+| `pandas` | Manipulacao e agregacao dos DataFrames: conversao F para C, calculo AQI (formula US EPA), agregacao temporal (30min para diario para mensal) |
+| `csv` (stdlib) | Leitura e escrita de arquivos CSV |
+
+Os scripts geraram 3 datasets processados (`complete`, `daily`, `monthly`) a partir dos dados brutos, alem do arquivo de metadados (`dataset_metadata_v2.json`). O log de progresso das requisicoes esta registrado em `dataset/raw/Progress_Logs.log`.
+
+> **Nota**: O Python e utilizado apenas na fase de processamento. O frontend carrega os CSVs ja processados via `d3.csv()` sem nenhuma dependencia de Python em tempo de execucao.
+
 ---
 
 ## Citacao
