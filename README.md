@@ -1,6 +1,6 @@
 # Respira Boa Vista
 
-**Dataset aberto e sistema de visualizacao comunitaria de qualidade do ar para Boa Vista/RR**
+**Monitoramento comunitario de qualidade do ar em Boa Vista/RR: dataset aberto com 34.791 medicoes (PM2.5, PM10, temperatura, umidade) e plataforma web interativa com dashboard D3.js e mapa Leaflet.**
 
 > Trabalho de Conclusao de Curso -- Especializacao em Computacao Aplicada na Industria 4.0
 > *Expansao e Democratizacao do Monitoramento de Qualidade do Ar em Boa Vista/RR -- Dataset Aberto e Sistema de Visualizacao Comunitaria*
