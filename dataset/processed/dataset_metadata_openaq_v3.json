@@ -1,0 +1,121 @@
+{
+  "meta": {
+    "name": "respira-boa-vista",
+    "website": "https://cedricrr.github.io/respira-boa-vista/",
+    "source": "OpenAQ v3 compatible metadata",
+    "version": "2.0"
+  },
+  "results": [
+    {
+      "id": 56843,
+      "name": "PurpleAir PA-II-SD - Boa Vista/RR",
+      "locality": "Boa Vista",
+      "timezone": "America/Boa_Vista",
+      "country": {
+        "code": "BR",
+        "name": "Brazil"
+      },
+      "owner": {
+        "id": 1,
+        "name": "UFRR - Universidade Federal de Roraima"
+      },
+      "provider": {
+        "id": 1,
+        "name": "PurpleAir"
+      },
+      "isMobile": false,
+      "isMonitor": false,
+      "instruments": [
+        {
+          "id": 1,
+          "name": "PurpleAir PA-II-SD (Plantower PMS5003)"
+        }
+      ],
+      "sensors": [
+        {
+          "id": 1,
+          "name": "pm25",
+          "parameter": {
+            "id": 2,
+            "name": "pm25",
+            "units": "ug/m3",
+            "displayName": "PM2.5"
+          },
+          "summary": {
+            "min": 0.0,
+            "median": 4.8,
+            "avg": 9.32,
+            "max": 373.2
+          }
+        },
+        {
+          "id": 2,
+          "name": "pm10",
+          "parameter": {
+            "id": 1,
+            "name": "pm10",
+            "units": "ug/m3",
+            "displayName": "PM10"
+          },
+          "summary": {
+            "min": 0.0,
+            "median": 5.2,
+            "avg": 10.08,
+            "max": 397.2
+          }
+        },
+        {
+          "id": 3,
+          "name": "temperature",
+          "parameter": {
+            "id": 126,
+            "name": "temperature",
+            "units": "c",
+            "displayName": "Temperature"
+          },
+          "summary": {
+            "avg": 34.1
+          }
+        },
+        {
+          "id": 4,
+          "name": "humidity",
+          "parameter": {
+            "id": 128,
+            "name": "humidity",
+            "units": "%",
+            "displayName": "Relative Humidity"
+          },
+          "summary": {
+            "avg": 49.5
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 2.828993,
+        "longitude": -60.662812
+      },
+      "bounds": [-60.67, 2.82, -60.66, 2.84],
+      "datetimeFirst": {
+        "utc": "2024-01-01T00:00:00+00:00",
+        "local": "2023-12-31T20:00:00-04:00"
+      },
+      "datetimeLast": {
+        "utc": "2025-12-30T23:30:00+00:00",
+        "local": "2025-12-30T19:30:00-04:00"
+      },
+      "licenses": [
+        {
+          "id": 1,
+          "name": "CC BY 4.0",
+          "attribution": {
+            "name": "Williams Filho, C.C.P. - UFRR",
+            "url": "https://github.com/cedricrr/respira-boa-vista"
+          },
+          "dateFrom": "2024-01-01",
+          "dateTo": "2025-12-30"
+        }
+      ]
+    }
+  ]
+}

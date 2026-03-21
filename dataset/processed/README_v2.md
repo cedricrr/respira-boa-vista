@@ -83,9 +83,14 @@
 ### Metadados
 4. `dataset_metadata_v2.json`
    - Metadados estruturados completos
-   - Padrão OpenAQ compatível
+   - Formato interno do projeto
 
-5. `sensor_location.geojson`
+5. `dataset_metadata_openaq_v3.json`
+   - Metadados no padrão OpenAQ v3 (envelope `meta`/`results`, camelCase, DatetimeObject com UTC+local)
+   - Estrutura compatível com a API OpenAQ v3: `sensors[]` por parâmetro, `instruments[]`, `licenses[]`
+   - Campos não mapeáveis (AQI, contato, DOI) permanecem em `dataset_metadata_v2.json`
+
+6. `sensor_location.geojson`
    - Localização do sensor para mapas
 
 ### Visualizações

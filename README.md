@@ -58,6 +58,7 @@ respira-boa-vista/
     ├── processed/                     # Dados processados
     │   ├── README_v2.md
     │   ├── dataset_metadata_v2.json
+    │   ├── dataset_metadata_openaq_v3.json
     │   ├── dataset_qualidade_ar_boavista_2024-2025_complete.csv
     │   ├── dataset_qualidade_ar_boavista_2024-2025_daily.csv
     │   └── dataset_qualidade_ar_boavista_2024-2025_monthly.csv
@@ -88,7 +89,8 @@ Dados coletados via sensor [PurpleAir PA-II-SD](https://www.purpleair.com/) (Sen
 | `dataset_qualidade_ar_boavista_2024-2025_daily.csv` | CSV | Agregados diarios (media/min/max) | 730 |
 | `dataset_qualidade_ar_boavista_2024-2025_monthly.csv` | CSV | Agregados mensais (media/min/max/desvio) | 24 |
 | `sensor_qualidade_ar_boavista.geojson` | GeoJSON | Localizacao do sensor, metadados e estatisticas | 1 feature |
-| `dataset_metadata_v2.json` | JSON | Metadados do dataset (cobertura, parametros, estatisticas) | -- |
+| `dataset_metadata_v2.json` | JSON | Metadados internos do dataset (cobertura, parametros, estatisticas) | -- |
+| `dataset_metadata_openaq_v3.json` | JSON | Metadados no padrao OpenAQ v3 (sensores, instrumentos, licencas) | -- |
 
 ### Colunas do Dataset Completo
 
