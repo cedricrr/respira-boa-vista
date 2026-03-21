@@ -3,7 +3,7 @@
 **Monitoramento comunitario de qualidade do ar em Boa Vista/RR: dataset aberto com 34.791 medicoes (PM2.5, PM10, temperatura, umidade) e plataforma web interativa com dashboard D3.js e mapa Leaflet.**
 
 > Trabalho de Conclusao de Curso -- Especializacao em Computacao Aplicada na Industria 4.0
-> *Expansao e Democratizacao do Monitoramento de Qualidade do Ar em Boa Vista/RR -- Dataset Aberto e Sistema de Visualizacao Comunitaria*
+> *Monitoramento da Qualidade do Ar em Boa Vista/RR com Sensores IoT na Perspectiva da Indústria 4.0: Dataset Aberto e Visualização Comunitária*
 > Autor: Cedric Carol Patrician Williams Filho
 > Instituicao: UFRR -- Universidade Federal de Roraima
 
