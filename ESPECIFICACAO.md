@@ -65,9 +65,10 @@ Onde:
 ### RF-04: Portal Principal (index.html)
 - DEVE exibir a qualidade do ar atual com valor AQI e cor correspondente
 - DEVE exibir valores de PM2.5, PM10, temperatura e umidade
-- DEVE exibir a data da ultima leitura disponivel no card AQI
+- DEVE exibir a data da ultima leitura disponivel no card AQI como badge de alerta destacada (cor, icone e animacao pulse)
 - DEVE apresentar recomendacoes de saude baseadas na categoria AQI atual
 - DEVE conter ilustracao SVG inline tematica na secao hero (skyline de cidade, particulas PM2.5, sensor e vegetacao) com animacoes de particulas flutuantes e vento
+- DEVE exibir secao "Panorama do Dataset" com titulo destacado (fundo colorido) e cards de estatisticas gerais
 - DEVE conter navegacao para as paginas de mapa e dashboard
 - DEVE ser responsivo (mobile, tablet, desktop); a ilustracao SVG DEVE ser ocultada em telas < 768px
 

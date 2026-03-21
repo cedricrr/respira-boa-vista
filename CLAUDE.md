@@ -94,3 +94,102 @@ The JS code aggregates raw 30-min data to daily using `d3.group()` into objects 
 - **WHO PM2.5 limit**: 15 µg/m³
 - **EPA PM2.5 limit**: 35.4 µg/m³
 - **AQI "Good" threshold**: 50
+
+---
+
+# CLAUDE.md (Portugues)
+
+## Visao Geral do Projeto
+
+Respira Boa Vista e um projeto de TCC (Trabalho de Conclusao de Curso) para monitoramento da qualidade do ar em Boa Vista/RR, Brasil, utilizando dados do sensor IoT PurpleAir. E uma aplicacao frontend estatica que visualiza dados ambientais reais coletados de um sensor PurpleAir PA-II-SD (ID: 56843).
+
+## Estrutura do Projeto
+
+```
+respira-boa-vista/
+├── web/                   # Codigo-fonte do frontend (3 paginas HTML)
+│   ├── index.html         # Inicio — ilustracao SVG hero + card AQI (com data da ultima leitura) + resumo estatistico
+│   ├── dashboard.html     # Dashboard — 3 graficos D3.js (IQA, PM2.5, Temp/Umidade) + filtros (ano/mes/dia)
+│   └── mapa.html          # Mapa — mapa interativo Leaflet + painel lateral de estatisticas
+├── docs/                  # Deploy no GitHub Pages (copia de web/ + dataset)
+│   ├── index.html         # Pagina inicial (deploy)
+│   ├── dashboard.html     # Dashboard (deploy)
+│   ├── mapa.html          # Mapa (deploy)
+│   ├── tecnologias.md     # Lista de tecnologias utilizadas
+│   └── dataset/processed/ # Copia do CSV para acesso no Pages
+├── dataset/
+│   ├── raw/               # CSV bruto da API PurpleAir
+│   └── processed/         # CSVs processados (completo, diario, mensal) + metadados JSON
+├── .github/workflows/     # CI/CD
+│   └── deploy-pages.yml   # Deploy no GitHub Pages via Actions
+├── ESPECIFICACAO.md       # Especificacao tecnica
+├── README.md              # README do projeto
+├── CITATION.cff           # Metadados de citacao
+├── .nojekyll              # Desabilita processamento Jekyll no GitHub Pages
+└── LICENSE                # MIT (codigo) + CC BY 4.0 (dados)
+```
+
+## Stack Tecnologica
+
+- **Frontend**: HTML5, CSS3, JavaScript vanilla (ES6+) — sem build tools ou frameworks
+- **Visualizacao**: D3.js v7 (graficos), Leaflet v1.9.4 (mapa), OpenStreetMap (tiles)
+- **UI**: Google Fonts (Inter), Phosphor Icons, CSS Variables
+- **Dados**: Arquivos CSV carregados no cliente via `d3.csv()`, agregados em medias diarias com `d3.group()`
+- **Fonte de dados**: API PurpleAir v1 (sensor 56843, intervalos de 30 min, 34.791 registros)
+
+## Desenvolvimento
+
+### Executar localmente
+
+```bash
+python3 -m http.server 8000
+# Abra http://localhost:8000/web/index.html
+```
+
+Um servidor HTTP local e necessario devido a restricoes de CORS no carregamento de arquivos via `d3.csv()`.
+
+### Caminho dos dados
+
+- **Paginas `web/`** carregam dados usando `basePath` dinamico:
+  ```js
+  const basePath = location.hostname.includes('github.io') ? '/respira-boa-vista' : '';
+  d3.csv(basePath + '/dataset/processed/dataset_qualidade_ar_boavista_2024-2025_complete.csv')
+  ```
+- **Paginas `docs/`** (GitHub Pages) usam caminho relativo:
+  ```js
+  d3.csv('./dataset/processed/dataset_qualidade_ar_boavista_2024-2025_complete.csv')
+  ```
+
+### Deploy
+
+- GitHub Pages serve a partir da raiz (`path: '.'`) via GitHub Actions (`.github/workflows/deploy-pages.yml`)
+- A pasta `docs/` contem uma copia autocontida da aplicacao com sua propria pasta `dataset/processed/`
+- URL: `https://cedricrr.github.io/respira-boa-vista/docs/index.html`
+
+### Colunas do CSV
+
+`timestamp_utc, pm25_ugm3, pm10_ugm3, temperature_celsius, humidity_percent, aqi, aqi_category, date, month, year`
+
+### Formato de agregacao diaria
+
+O codigo JS agrega os dados brutos de 30 min para diario usando `d3.group()` em objetos com as chaves:
+- `d` — string de data (YYYY-MM-DD)
+- `p` — media PM2.5
+- `px` — maximo PM2.5
+- `t` — media PM10
+- `c` — media de temperatura (Celsius)
+- `h` — media de umidade (%)
+
+## Convencoes
+
+- **Idioma**: Portugues (pt-BR) para textos da interface e documentacao
+- **Commits**: [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
+- **Design system**: Fonte Inter, Phosphor Icons, CSS variables para cores AQI, navbar sticky com backdrop-blur
+- **Sem etapa de build**: HTML/CSS/JS puro — editar e recarregar
+
+## Constantes Importantes
+
+- **Coordenadas do sensor**: 2.828993, -60.662812 (Boa Vista, Roraima)
+- **Limite OMS PM2.5**: 15 ug/m3
+- **Limite EPA PM2.5**: 35.4 ug/m3
+- **Limiar AQI "Boa"**: 50
