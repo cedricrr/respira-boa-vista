@@ -11,7 +11,7 @@
 
 ## Sobre o Projeto
 
-O **Respira Boa Vista** e um projeto de ciencia aberta que coleta, processa e disponibiliza dados de qualidade do ar da cidade de Boa Vista, Roraima, Brasil. O sistema utiliza sensores IoT de baixo custo (PurpleAir) para monitoramento continuo de material particulado (PM2.5 e PM10), temperatura e umidade, e oferece uma plataforma web interativa para consulta e visualizacao dos dados pela comunidade.
+O **Respira Boa Vista** e um projeto de ciencia aberta que coleta, processa e disponibiliza dados de qualidade do ar da cidade de Boa Vista, Roraima, Brasil. O sistema utiliza sensores IoT de baixo custo (PurpleAir) para monitoramento continuo de material particulado (PM2.5), temperatura e umidade, e oferece uma plataforma web interativa para consulta e visualizacao dos dados pela comunidade.
 
 ### Objetivos
 
