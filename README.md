@@ -29,7 +29,6 @@ O **Respira Boa Vista** e um projeto de ciencia aberta que coleta, processa e di
 respira-boa-vista/
 ├── README.md                          # Documentacao principal do projeto
 ├── ESPECIFICACAO.md                   # Especificacao tecnica minima
-├── CLAUDE.md                          # Contexto do projeto para IA
 ├── LICENSE                            # Licenca MIT (codigo)
 ├── CITATION.cff                       # Metadados de citacao (CFF v1.2.0)
 ├── .gitignore
@@ -204,6 +203,61 @@ python3 -m http.server 8000
 | **Status** | Ativo |
 
 [Ver sensor no mapa PurpleAir](https://map.purpleair.com/air-quality-standards-us-epa-aqi?opt=%2F1%2Flp%2Fa10%2Fp604800%2FcC0#18.19/2.828993/-60.662812)
+
+---
+
+## Arquitetura do Sistema
+
+```
+[Camada 1: Coleta]
+┌───────────────────────────────┐
+│ Sensor IoT (PurpleAir PA-II) │
+│ - PM2.5, PM10, Temp, Umidade │
+│ - Intervalo: 30 min          │
+└───────────────┬───────────────┘
+                │
+                ▼
+[Camada 2: Transmissao]
+┌───────────────────────────────┐
+│ API PurpleAir / Internet      │
+│ - Envio continuo              │
+└───────────────┬───────────────┘
+                │
+                ▼
+[Camada 3: Processamento]
+┌───────────────────────────────┐
+│ Pipeline de Dados (Python)    │
+│ - Coleta automatica           │
+│ - Limpeza / filtragem         │
+│ - Tratamento de inconsistencias│
+│ - Padronizacao (OpenAQ v3)    │
+└───────────────┬───────────────┘
+                │
+                ▼
+[Camada 4: Armazenamento]
+┌───────────────────────────────┐
+│ Dataset Aberto                │
+│ - 34.791 registros            │
+│ - Metadados estruturados      │
+└───────────────┬───────────────┘
+                │
+                ▼
+[Camada 5: Aplicacao]
+┌───────────────────────────────┐
+│ Plataforma Web                │
+│ - Visualizacao (graficos D3)  │
+│ - Traducao para IQA           │
+│ - Interface amigavel          │
+└───────────────┬───────────────┘
+                │
+                ▼
+[Camada 6: Usuario]
+┌───────────────────────────────┐
+│ Comunidade / Usuario Final    │
+│ - Acesso a informacao         │
+│ - Apoio a decisao             │
+└───────────────────────────────┘
+```
 
 ---
 
