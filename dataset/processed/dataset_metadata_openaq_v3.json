@@ -23,6 +23,10 @@
         "id": 1,
         "name": "PurpleAir"
       },
+      "entity": {
+        "id": 1,
+        "type": "research"
+      },
       "isMobile": false,
       "isMonitor": false,
       "instruments": [
@@ -41,11 +45,32 @@
             "units": "ug/m3",
             "displayName": "PM2.5"
           },
+          "datetimeFirst": {
+            "utc": "2024-01-01T00:00:00+00:00",
+            "local": "2023-12-31T20:00:00-04:00"
+          },
+          "datetimeLast": {
+            "utc": "2025-12-30T23:30:00+00:00",
+            "local": "2025-12-30T19:30:00-04:00"
+          },
           "summary": {
             "min": 0.0,
             "median": 4.8,
             "avg": 9.32,
-            "max": 373.2
+            "max": 373.2,
+            "count": 34791,
+            "period": {
+              "label": "raw",
+              "interval": "30 minutes",
+              "datetime_from": {
+                "utc": "2024-01-01T00:00:00+00:00",
+                "local": "2023-12-31T20:00:00-04:00"
+              },
+              "datetime_to": {
+                "utc": "2025-12-30T23:30:00+00:00",
+                "local": "2025-12-30T19:30:00-04:00"
+              }
+            }
           }
         },
         {
@@ -57,11 +82,32 @@
             "units": "ug/m3",
             "displayName": "PM10"
           },
+          "datetimeFirst": {
+            "utc": "2024-01-01T00:00:00+00:00",
+            "local": "2023-12-31T20:00:00-04:00"
+          },
+          "datetimeLast": {
+            "utc": "2025-12-30T23:30:00+00:00",
+            "local": "2025-12-30T19:30:00-04:00"
+          },
           "summary": {
             "min": 0.0,
             "median": 5.2,
             "avg": 10.08,
-            "max": 397.2
+            "max": 397.2,
+            "count": 34791,
+            "period": {
+              "label": "raw",
+              "interval": "30 minutes",
+              "datetime_from": {
+                "utc": "2024-01-01T00:00:00+00:00",
+                "local": "2023-12-31T20:00:00-04:00"
+              },
+              "datetime_to": {
+                "utc": "2025-12-30T23:30:00+00:00",
+                "local": "2025-12-30T19:30:00-04:00"
+              }
+            }
           }
         },
         {
@@ -73,8 +119,29 @@
             "units": "c",
             "displayName": "Temperature"
           },
+          "datetimeFirst": {
+            "utc": "2024-01-01T00:00:00+00:00",
+            "local": "2023-12-31T20:00:00-04:00"
+          },
+          "datetimeLast": {
+            "utc": "2025-12-30T23:30:00+00:00",
+            "local": "2025-12-30T19:30:00-04:00"
+          },
           "summary": {
-            "avg": 34.1
+            "avg": 34.1,
+            "count": 34791,
+            "period": {
+              "label": "raw",
+              "interval": "30 minutes",
+              "datetime_from": {
+                "utc": "2024-01-01T00:00:00+00:00",
+                "local": "2023-12-31T20:00:00-04:00"
+              },
+              "datetime_to": {
+                "utc": "2025-12-30T23:30:00+00:00",
+                "local": "2025-12-30T19:30:00-04:00"
+              }
+            }
           }
         },
         {
@@ -86,8 +153,29 @@
             "units": "%",
             "displayName": "Relative Humidity"
           },
+          "datetimeFirst": {
+            "utc": "2024-01-01T00:00:00+00:00",
+            "local": "2023-12-31T20:00:00-04:00"
+          },
+          "datetimeLast": {
+            "utc": "2025-12-30T23:30:00+00:00",
+            "local": "2025-12-30T19:30:00-04:00"
+          },
           "summary": {
-            "avg": 49.5
+            "avg": 49.5,
+            "count": 34791,
+            "period": {
+              "label": "raw",
+              "interval": "30 minutes",
+              "datetime_from": {
+                "utc": "2024-01-01T00:00:00+00:00",
+                "local": "2023-12-31T20:00:00-04:00"
+              },
+              "datetime_to": {
+                "utc": "2025-12-30T23:30:00+00:00",
+                "local": "2025-12-30T19:30:00-04:00"
+              }
+            }
           }
         }
       ],

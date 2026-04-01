@@ -11,6 +11,7 @@ Thumbs.db
 
 # Ferramentas externas
 .interface-design/
+CLAUDE.md
 
 # Logs
 *.log
