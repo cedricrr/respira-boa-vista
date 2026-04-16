@@ -2,7 +2,7 @@
   "project": {
     "name": "Respira Boa Vista",
     "description": "Dataset aberto de qualidade do ar e sistema de visualização comunitária para Boa Vista/RR",
-    "thesis_title": "Expansão e Democratização do Monitoramento de Qualidade do Ar em Boa Vista/RR - Dataset Aberto e Sistema de Visualização Comunitária",
+    "thesis_title": "Monitoramento da Qualidade do Ar em Boa Vista/RR com Sensores IoT na Perspectiva da Indústria 4.0: Dataset Aberto e Visualização Comunitária",
     "institution": "Universidade Federal de Roraima - UFRR",
     "program": "Especialização em Computação Aplicada na Indústria 4.0"
   },
