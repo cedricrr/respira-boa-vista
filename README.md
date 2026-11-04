@@ -148,6 +148,7 @@ Aplicacao HTML/CSS/JS estatica para consulta interativa dos dados, sem necessida
 1. **Portal Principal** (`web/index.html`) -- Pagina inicial com qualidade do ar atual, AQI em tempo real, badge de alerta com data da ultima leitura, ilustracao SVG tematica (skyline, particulas, sensor), panorama do dataset destacado e orientacoes de saude
 2. **Dashboard** (`web/dashboard.html`) -- Graficos interativos com D3.js (IQA, PM2.5, Temperatura/Umidade), cards de estatisticas e filtros por ano/mes/dia
 3. **Mapa Interativo** (`web/mapa.html`) -- Mapa Leaflet com localizacao do sensor, filtros temporais e painel de estatisticas
+4. **Qualidade do ar** (`web/qualidade-do-ar.html`) -- Mapa do sensor PurpleAir incorporado, legenda do IQA em linguagem simples, orientacoes de saude e atalhos para o dashboard e os dados abertos
 
 ### Tecnologias
 

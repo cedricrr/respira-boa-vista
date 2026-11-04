@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Qualidade do ar em Boa Vista | Respira Boa Vista</title>
+<meta name="description" content="Veja a leitura do sensor de poluição do ar de Boa Vista, Roraima, e entenda o que cada número do IQA significa para a sua saúde. Dados abertos do projeto Respira Boa Vista.">
+<link rel="canonical" href="https://cedricrr.github.io/respira-boa-vista/qualidade-do-ar.html">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:site_name" content="Respira Boa Vista">
+<meta property="og:title" content="Como está o ar em Boa Vista hoje?">
+<meta property="og:description" content="Mapa do sensor, legenda do IQA em linguagem simples e orientações de saúde. Projeto de dados abertos Respira Boa Vista.">
+<meta property="og:url" content="https://cedricrr.github.io/respira-boa-vista/qualidade-do-ar.html">
+<meta name="twitter:card" content="summary">
+<meta name="theme-color" content="#F5F5F7">
+<style>
+  .topnav { background: rgba(255,255,255,.85); backdrop-filter: saturate(180%) blur(12px); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; }
+  .topnav .inner { max-width: 1440px; margin: 0 auto; padding: .7rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+  .topnav .brand { font-weight: 700; letter-spacing: -.01em; color: var(--text); text-decoration: none; }
+  .topnav ul { list-style: none; display: flex; gap: 1.1rem; flex-wrap: wrap; }
+  .topnav a.nav-link { color: var(--secondary); text-decoration: none; font-size: .95rem; padding: .3rem .1rem; }
+  .topnav a.nav-link:hover, .topnav a.nav-link[aria-current="page"] { color: var(--text); }
+  .topnav a.nav-link[aria-current="page"] { font-weight: 600; border-bottom: 2px solid var(--accent); }
+  .cta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; margin-top: .8rem; }
+  .cta { display: block; padding: .8rem .9rem; border-radius: 12px; background: var(--bg); color: var(--text); text-decoration: none; font-weight: 600; font-size: .95rem; line-height: 1.3; }
+  .cta span { display: block; font-weight: 400; font-size: .82rem; color: var(--tertiary); margin-top: .15rem; }
+  .cta:hover { background: #ECECF1; }
+  @media (max-width: 480px) { .cta-grid { grid-template-columns: 1fr; } }
+  :root {
+    --bg: #F5F5F7;
+    --card: #FFFFFF;
+    --text: #1D1D1F;
+    --secondary: #515154;
+    --tertiary: #6E6E73;
+    --border: #E8E8ED;
+    --accent: #0071E3;
+    --shadow: 0 2px 12px rgba(0,0,0,.08);
+    --radius: 16px;
+    --font: -apple-system, BlinkMacSystemFont, 'Inter', 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
+    --aqi-boa: #00E400;
+    --aqi-moderada: #FFFF00;
+    --aqi-sensiveis: #FF7E00;
+    --aqi-prejudicial: #FF0000;
+    --aqi-muito: #8F3F97;
+    --aqi-perigosa: #7E0023;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 17px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: var(--accent); }
+  a:focus-visible, button:focus-visible, input:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .page { max-width: 1440px; margin: 0 auto; padding: 1.5rem; }
+
+  header { margin-bottom: 1.25rem; }
+  header h1 { font-size: 1.9rem; font-weight: 700; letter-spacing: -.02em; line-height: 1.2; }
+  header p { color: var(--secondary); margin-top: .35rem; max-width: 70ch; }
+
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.85fr) minmax(320px, 1fr);
+    gap: 1.25rem;
+    align-items: start;
+  }
+
+  .card {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1.4rem 1.5rem;
+  }
+
+  /* Coluna do mapa */
+  .map-col { position: sticky; top: 1rem; }
+  .map-frame {
+    width: 100%;
+    height: clamp(520px, 78vh, 820px);
+    border: 0;
+    border-radius: 12px;
+    background: #EDEDF0;
+    display: block;
+  }
+  .map-note {
+    color: var(--tertiary);
+    font-size: .9rem;
+    margin-top: .75rem;
+  }
+
+  /* Barra lateral */
+  aside { display: flex; flex-direction: column; gap: 1rem; }
+  aside h2 { font-size: 1.15rem; font-weight: 700; letter-spacing: -.01em; margin-bottom: .5rem; }
+  aside p { color: var(--secondary); font-size: .98rem; }
+  aside p + p { margin-top: .6rem; }
+  aside ul { margin: .5rem 0 0 1.2rem; color: var(--secondary); font-size: .98rem; }
+  aside li + li { margin-top: .3rem; }
+
+  /* Verificador */
+  .checker label { display: block; font-weight: 600; font-size: .98rem; margin-bottom: .4rem; }
+  .checker-row { display: flex; gap: .6rem; }
+  .checker input {
+    width: 7.5rem;
+    font: inherit;
+    padding: .55rem .8rem;
+    border: 1.5px solid #AEAEB2;
+    border-radius: 10px;
+    background: #fff;
+    color: var(--text);
+  }
+  .checker-result {
+    margin-top: .8rem;
+    padding: .8rem 1rem;
+    border-radius: 12px;
+    background: var(--bg);
+    font-size: .98rem;
+    color: var(--text);
+    min-height: 3rem;
+  }
+  .checker-result strong { font-weight: 700; }
+
+  /* Legenda */
+  .legend { list-style: none; margin: 0; padding: 0; display: grid; gap: .6rem; }
+  .legend li { margin: 0; }
+  .band {
+    display: grid;
+    grid-template-columns: 5.2rem 1fr;
+    gap: .85rem;
+    padding: .8rem;
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+    transition: border-color .2s, box-shadow .2s, background .2s;
+  }
+  .band.active {
+    border-color: var(--text);
+    box-shadow: 0 0 0 2px var(--text);
+    background: #FAFAFC;
+  }
+  .swatch {
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: .4rem .2rem;
+    font-weight: 700;
+    line-height: 1.15;
+    text-align: center;
+  }
+  .swatch .range { font-size: 1.05rem; }
+  .swatch .unit { font-size: .7rem; font-weight: 600; letter-spacing: .03em; }
+  .s-boa { background: var(--aqi-boa); color: #0B3D0B; }
+  .s-moderada { background: var(--aqi-moderada); color: #4A4400; }
+  .s-sensiveis { background: var(--aqi-sensiveis); color: #3D1F00; }
+  .s-prejudicial { background: var(--aqi-prejudicial); color: #fff; }
+  .s-muito { background: var(--aqi-muito); color: #fff; }
+  .s-perigosa { background: var(--aqi-perigosa); color: #fff; }
+
+  .band h3 { font-size: 1rem; font-weight: 700; line-height: 1.3; }
+  .band p { font-size: .93rem; color: var(--secondary); margin-top: .2rem; }
+
+  .alert-card {
+    border-left: 5px solid var(--aqi-prejudicial);
+  }
+
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; margin-top: .7rem; }
+  .stat { background: var(--bg); border-radius: 12px; padding: .7rem .9rem; }
+  .stat .v { font-size: 1.35rem; font-weight: 700; letter-spacing: -.01em; }
+  .stat .l { font-size: .82rem; color: var(--tertiary); line-height: 1.3; }
+
+  footer { margin-top: 1.5rem; color: var(--tertiary); font-size: .85rem; max-width: 100ch; }
+
+  @media (max-width: 960px) {
+    .layout { grid-template-columns: 1fr; }
+    .map-col { position: static; }
+    .map-frame { height: 70vh; min-height: 440px; }
+    header h1 { font-size: 1.6rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<nav class="topnav" aria-label="Navegação do projeto">
+  <div class="inner">
+    <a class="brand" href="index.html">Respira Boa Vista</a>
+    <ul>
+      <li><a class="nav-link" href="index.html">Início</a></li>
+      <li><a class="nav-link" href="mapa.html">Mapa</a></li>
+      <li><a class="nav-link" href="dashboard.html">Dashboard</a></li>
+      <li><a class="nav-link" href="qualidade-do-ar.html" aria-current="page">Qualidade do ar</a></li>
+    </ul>
+  </div>
+</nav>
+<div class="page">
+
+  <header>
+    <h1>Como está o ar em Boa Vista hoje?</h1>
+    <p>Acompanhe a leitura do sensor de poluição do ar instalado na cidade e veja o que cada número significa para a sua saúde.</p>
+  </header>
+
+  <main class="layout">
+
+    <!-- Coluna esquerda: mapa e sensor -->
+    <section class="map-col" aria-labelledby="titulo-mapa">
+      <div class="card">
+        <h2 id="titulo-mapa" style="position:absolute;left:-9999px">Mapa com a leitura do sensor</h2>
+        <iframe
+          class="map-frame"
+          title="Mapa PurpleAir com a leitura atual do sensor de qualidade do ar de Boa Vista"
+          src="https://map.purpleair.com/air-quality-standards-us-epa-aqi?opt=%2F1%2Flp%2Fa10%2Fp604800%2FcC0#15.65/2.827695/-60.665479"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          allowfullscreen></iframe>
+        <p class="map-note">
+          O mapa carrega dados do PurpleAir e atualiza sozinho. Se ele não aparecer,
+          <a href="https://map.purpleair.com/air-quality-standards-us-epa-aqi?opt=%2F1%2Flp%2Fa10%2Fp604800%2FcC0#15.65/2.827695/-60.665479" target="_blank" rel="noopener">abra o mapa em uma nova aba</a>.
+        </p>
+      </div>
+    </section>
+
+    <!-- Coluna direita: barra lateral -->
+    <aside aria-label="Como entender a qualidade do ar">
+
+      <section class="card">
+        <h2>Como ler o mapa</h2>
+        <p>Cada círculo colorido é um sensor. O número dentro dele é o IQA, o Índice de Qualidade do Ar. Quanto maior o número, pior o ar.</p>
+        <p>A cor mostra a faixa. Procure a mesma cor na legenda abaixo para saber o que fazer.</p>
+      </section>
+
+      <section class="card checker">
+        <h2>Descubra o que o número significa</h2>
+        <label for="aqi-input">Digite o número que aparece no mapa</label>
+        <div class="checker-row">
+          <input id="aqi-input" type="number" inputmode="numeric" min="0" max="500" placeholder="Ex.: 42">
+        </div>
+        <div id="aqi-result" class="checker-result" role="status" aria-live="polite">
+          O resultado aparece aqui.
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="titulo-legenda">
+        <h2 id="titulo-legenda">Legenda e orientações</h2>
+        <ul class="legend" id="legend">
+          <li>
+            <div class="band" data-min="0" data-max="50">
+              <div class="swatch s-boa"><span class="range">0 a 50</span><span class="unit">IQA</span></div>
+              <div>
+                <h3>Boa</h3>
+                <p>Ar limpo. Todas as atividades ao ar livre estão liberadas.</p>
+              </div>
+            </div>
+          </li>
+          <li>
+            <div class="band" data-min="51" data-max="100">
+              <div class="swatch s-moderada"><span class="range">51 a 100</span><span class="unit">IQA</span></div>
+              <div>
+                <h3>Moderada</h3>
+                <p>Aceitável para a maioria. Pessoas muito sensíveis podem sentir incômodo em esforço longo ao ar livre.</p>
+              </div>
+            </div>
+          </li>
+          <li>
+            <div class="band" data-min="101" data-max="150">
+              <div class="swatch s-sensiveis"><span class="range">101 a 150</span><span class="unit">IQA</span></div>
+              <div>
+                <h3>Ruim para grupos sensíveis</h3>
+                <p>Crianças, idosos, gestantes e pessoas com asma ou problemas no coração devem reduzir o esforço ao ar livre.</p>
+              </div>
+            </div>
+          </li>
+          <li>
+            <div class="band" data-min="151" data-max="200">
+              <div class="swatch s-prejudicial"><span class="range">151 a 200</span><span class="unit">IQA</span></div>
+              <div>
+                <h3>Ruim para todos</h3>
+                <p>Olhos e garganta podem irritar. Evite exercício ao ar livre. Grupos sensíveis devem ficar em ambientes fechados.</p>
+              </div>
+            </div>
+          </li>
+          <li>
+            <div class="band" data-min="201" data-max="300">
+              <div class="swatch s-muito"><span class="range">201 a 300</span><span class="unit">IQA</span></div>
+              <div>
+                <h3>Muito ruim</h3>
+                <p>Evite sair. Mantenha as janelas fechadas. Quem tem doença respiratória ou do coração deve seguir a orientação do médico.</p>
+              </div>
+            </div>
+          </li>
+          <li>
+            <div class="band" data-min="301" data-max="9999">
+              <div class="swatch s-perigosa"><span class="range">301 ou mais</span><span class="unit">IQA</span></div>
+              <div>
+                <h3>Perigosa</h3>
+                <p>Fique em ambiente fechado e evite qualquer esforço. Procure um serviço de saúde se tiver falta de ar ou tosse forte.</p>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <section class="card alert-card">
+        <h2>Quando procurar atendimento</h2>
+        <p>Falta de ar intensa, dor no peito, chiado forte ou desmaio exigem atendimento imediato. Ligue para o SAMU no <strong>192</strong>.</p>
+      </section>
+
+      <section class="card">
+        <h2>Por que o ar piora em alguns meses</h2>
+        <p>Em Roraima, as queimadas do início do ano elevam a fumaça no ar, principalmente entre fevereiro e abril. A fumaça carrega partículas muito pequenas que entram nos pulmões.</p>
+        <div class="stats">
+          <div class="stat"><div class="v">246</div><div class="l">eventos extremos em 2024</div></div>
+          <div class="stat"><div class="v">0</div><div class="l">eventos extremos em 2025</div></div>
+          <div class="stat"><div class="v">13,6</div><div class="l">média de PM2.5 em 2024 (µg/m³)</div></div>
+          <div class="stat"><div class="v">5,0</div><div class="l">média de PM2.5 em 2025 (µg/m³)</div></div>
+        </div>
+        <p style="font-size:.85rem;color:var(--tertiary)">Evento extremo é uma leitura de PM2.5 acima de 100 µg/m³.</p>
+      </section>
+
+      <section class="card">
+        <h2>O que é PM2.5</h2>
+        <p>São partículas de poeira, fuligem e fumaça com menos de 2,5 micrômetros, bem menores que a espessura de um fio de cabelo. Por serem tão pequenas, chegam ao fundo dos pulmões.</p>
+        <ul>
+          <li>Causam tosse, irritação nos olhos e falta de ar.</li>
+          <li>Pioram asma, bronquite e doenças do coração.</li>
+          <li>Afetam mais crianças e idosos.</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>Como se proteger</h2>
+        <ul>
+          <li>Beba bastante água e mantenha a casa úmida em dias de fumaça.</li>
+          <li>Feche janelas e portas quando o IQA passar de 150.</li>
+          <li>Deixe as brincadeiras e os treinos das crianças para dentro de casa nesses dias.</li>
+          <li>Não faça queimadas de lixo ou de mato no quintal.</li>
+          <li>Se usar máscara na rua, escolha a PFF2 ou N95. A máscara de pano protege pouco contra partículas finas.</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>Explore os dados do projeto</h2>
+        <p>O sensor registra a qualidade do ar desde janeiro de 2024. Veja a evolução mês a mês e baixe os dados.</p>
+        <div class="cta-grid">
+          <a class="cta" href="dashboard.html">Dashboard<span>Gráficos de IQA, PM2.5, temperatura e umidade</span></a>
+          <a class="cta" href="mapa.html">Mapa do projeto<span>Localização do sensor e filtros por período</span></a>
+          <a class="cta" href="https://github.com/cedricrr/respira-boa-vista/tree/main/dataset/processed" target="_blank" rel="noopener">Dados abertos<span>34.791 medições em CSV, licença CC BY 4.0</span></a>
+          <a class="cta" href="https://github.com/cedricrr/respira-boa-vista" target="_blank" rel="noopener">Código no GitHub<span>Licença MIT</span></a>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Sobre os dados</h2>
+        <p>A leitura vem de um sensor de baixo custo PurpleAir (modelo PA-II-SD, identificação 56843), que mede as partículas a cada 30 minutos. Ele indica a tendência do ar na região, mas não substitui uma estação de monitoramento oficial.</p>
+        <p>O histórico de 2024 e 2025, com 34.791 medições, é aberto e pode ser consultado no projeto
+          <a href="https://cedricrr.github.io/respira-boa-vista/index.html" target="_blank" rel="noopener">Respira Boa Vista</a>
+          (<a href="https://github.com/cedricrr/respira-boa-vista" target="_blank" rel="noopener">código e dados</a>).</p>
+      </section>
+
+    </aside>
+  </main>
+
+  <footer>
+    Fontes: PurpleAir (leitura em tempo quase real), projeto Respira Boa Vista (histórico 2024 e 2025, licença CC BY 4.0) e escala do IQA da agência ambiental dos Estados Unidos (US EPA).
+    As orientações de saúde são gerais e não substituem a consulta médica nem a orientação dos órgãos oficiais de saúde.
+    <br><br>
+    Respira Boa Vista é um projeto de ciência aberta de Cedric Williams, desenvolvido como trabalho de conclusão da Especialização em Computação Aplicada na Indústria 4.0 da UFRR.
+    Para citar: WILLIAMS FILHO, Cedric Carol Patrician. Monitoramento da Qualidade do Ar em Boa Vista/RR com Sensores IoT na Perspectiva da Indústria 4.0: Dataset Aberto e Visualização Comunitária. 2026. UFRR.
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  var input = document.getElementById('aqi-input');
+  var result = document.getElementById('aqi-result');
+  var bands = Array.prototype.slice.call(document.querySelectorAll('.band'));
+
+  function clear() { bands.forEach(function (b) { b.classList.remove('active'); }); }
+
+  function update() {
+    clear();
+    var raw = input.value.trim();
+    if (raw === '') { result.textContent = 'O resultado aparece aqui.'; return; }
+    var n = Number(raw);
+    if (!isFinite(n) || n < 0) { result.textContent = 'Digite um número a partir de 0.'; return; }
+    n = Math.round(n);
+    var found = bands.filter(function (b) {
+      return n >= Number(b.dataset.min) && n <= Number(b.dataset.max);
+    })[0];
+    if (!found) { result.textContent = 'Número fora da escala.'; return; }
+    found.classList.add('active');
+    var title = found.querySelector('h3').textContent;
+    var text = found.querySelector('p').textContent;
+    result.innerHTML = '';
+    var s = document.createElement('strong');
+    s.textContent = 'IQA ' + n + ', faixa ' + title + '. ';
+    result.appendChild(s);
+    result.appendChild(document.createTextNode(text));
+    found.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+
+  input.addEventListener('input', update);
+})();
+</script>
+</body>
+</html>
