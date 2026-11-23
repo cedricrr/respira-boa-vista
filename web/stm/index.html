@@ -598,6 +598,7 @@
             var found = bandFor(n);
             if (!found) { result.textContent = 'Número fora da escala.'; return; }
             found.classList.add('active');
+            applyBackground(n);
             result.innerHTML = '';
             var s = document.createElement('strong');
             s.textContent = 'IQA ' + n + ', faixa ' + found.querySelector('h3').textContent + '. ';
